@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGTN 视频链接提取器</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        button.primary-btn {
+            padding: 12px 24px;
+            font-size: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+        button.primary-btn:hover {
+            background-color: #2980b9;
+        }
+        button.primary-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .result-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8fdfb;
+            border: 1px solid #1abc9c;
+            border-radius: 8px;
+        }
+        .error-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff5f5;
+            border: 1px solid #ff7675;
+            border-radius: 8px;
+            color: #d63031;
+            font-size: 14px;
+        }
+        .video-url {
+            word-break: break-all;
+            background: #fff;
+            padding: 12px;
+            border: 1px dashed #1abc9c;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            color: #2d3436;
+        }
+        .action-btns button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .action-btns button.copy { background-color: #00b894; }
+        .action-btns button.copy:hover { background-color: #00cec9; }
+        .action-btns button.open { background-color: #0984e3; }
+        .action-btns button.open:hover { background-color: #74b9ff; }
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background: #000;
+            margin-top: 15px;
+            outline: none;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 15px 0;
+            color: #636e72;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>CGTN 视频提取器</h1>
+    
+    <div class="input-group">
+        <input type="text" id="urlInput" placeholder="输入网页链接 (例如: https://news.cgtn.com/.../p.html)" autocomplete="off">
+        <button id="extractBtn" class="primary-btn" onclick="extractVideo()">提取视频</button>
+    </div>
+
+    <div class="loader" id="loader">⏳ 正在深入解析网页核心数据，请稍候...</div>
+
+    <div class="result-box" id="resultBox">
+        <h3 style="margin-top:0; color: #00b894;">🎉 提取成功！</h3>
+        <p style="font-size: 14px; color: #636e72;"><strong>转换后的 MP4 直链：</strong></p>
+        <div class="video-url" id="videoUrlText"></div>
+        
+        <div class="action-btns">
+            <button class="copy" onclick="copyToClipboard()">复制链接</button>
+            <button class="open" onclick="window.open(document.getElementById('videoUrlText').innerText, '_blank')">在新标签页打开</button>
+        </div>
+        
+        <p style="margin-top: 20px; font-size: 14px; color: #636e72;"><strong>视频预览：</strong></p>
+        <video id="videoPlayer" controls></video>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+</div>
+
+<script>
+    async function fetchHtmlWithFallback(url) {
+        const proxies = [
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            `https://corsproxy.io/?${encodeURIComponent(url)}`
+        ];
+
+        for (let i = 0; i < proxies.length; i++) {
+            try {
+                const response = await fetch(proxies[i]);
+                if (response.ok) {
+                    return await response.text();
+                }
+            } catch (error) {
+                console.warn(`代理节点 ${i + 1} 失败，切换中...`);
+            }
+        }
+        throw new Error("网络请求失败，请检查网址是否正确或您的网络环境。");
+    }
+
+    async function extractVideo() {
+        const urlInput = document.getElementById('urlInput').value.trim();
+        const extractBtn = document.getElementById('extractBtn');
+        const loader = document.getElementById('loader');
+        const resultBox = document.getElementById('resultBox');
+        const errorBox = document.getElementById('errorBox');
+        const videoPlayer = document.getElementById('videoPlayer');
+
+        resultBox.style.display = 'none';
+        errorBox.style.display = 'none';
+        videoPlayer.src = '';
+        
+        if (!urlInput) {
+            showError("网址不能为空！");
+            return;
+        }
+
+        extractBtn.disabled = true;
+        loader.style.display = 'block';
+
+        try {
+            const htmlString = await fetchHtmlWithFallback(urlInput);
+            
+            let rawUrl = '';
+
+            // 策略 1：直接找网页 JSON-LD 数据里的核心视频链接 (优先级最高，最精准)
+            const contentUrlMatch = htmlString.match(/"contentUrl"\s*:\s*"([^"]+)"/i);
+            // 策略 2：寻找播放器绑定的 data-video 属性
+            const dataVideoMatch = htmlString.match(/data-video\s*=\s*["']([^"']+)["']/i);
+            // 策略 3：备用方案，寻找特定的主封面图
+            const posterMatch = htmlString.match(/https:\/\/video\.cgtn\.com\/[^"'\s<>]+\.jpg/i);
+
+            if (contentUrlMatch && contentUrlMatch[1].includes('video.cgtn.com')) {
+                rawUrl = contentUrlMatch[1];
+            } else if (dataVideoMatch && dataVideoMatch[1].includes('video.cgtn.com')) {
+                rawUrl = dataVideoMatch[1];
+            } else if (posterMatch && posterMatch[0]) {
+                rawUrl = posterMatch[0];
+            }
+
+            if (rawUrl) {
+                // 无论抓到的是 .m3u8 还是 .jpg，统一将其强制替换为 .mp4 以获取真实视频文件
+                const mp4Url = rawUrl.replace(/\.(m3u8|jpg|jpeg|png)$/i, '.mp4');
+                
+                document.getElementById('videoUrlText').innerText = mp4Url;
+                videoPlayer.src = mp4Url;
+                resultBox.style.display = 'block';
+            } else {
+                showError("未能定位到该网页的主视频。可能该新闻没有附带视频，或使用了特殊格式。");
+            }
+
+        } catch (error) {
+            showError(`提取出错：${error.message}`);
+        } finally {
+            extractBtn.disabled = false;
+            loader.style.display = 'none';
+        }
+    }
+
+    function showError(message) {
+        const errorBox = document.getElementById('errorBox');
+        errorBox.innerText = message;
+        errorBox.style.display = 'block';
+    }
+
+    function copyToClipboard() {
+        const text = document.getElementById('videoUrlText').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("链接已复制到剪贴板！");
+        }).catch(err => {
+            alert("复制失败，请手动选择复制。");
+        });
+    }
+</script>
+
+</body>
+</html>
