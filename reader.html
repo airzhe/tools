@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>聆书页</title>
+    
+    <!-- 1. 标签页图标（Copilot 科技拼色版：极光绿 #10b981 + 皇家蓝 #3b82f6） -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMzBDMjUgMTUgNDEgMTUgNDkgMjV2NDVDNDEgNjAgMjUgNjAgMTIgNzVaIiBmaWxsPSIjMTBiOTgxIi8+PHBhdGggZD0iTTg4IDMwQzc1IDE1IDU5IDE1IDUxIDI1djQ1QzU5IDYwIDc1IDYwIDg4IDc1WiIgZmlsbD0iIzNiODJmNiIvPjwvc3ZnPg==">
+    
+    <!-- 2. 手机桌面图标（同步更新为 Copilot 拼色） -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJdY2QwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0yNCAzMmMxMC0xMiAyNS0xMSAzMS00djM4Yy02LTgtMjEtOC0zMSA0eiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0refMzM2MtMTAtMTItMjUtMTEtMzEtNHYzOGM2LTggMjEtOCAzMSA0eiIgZmlsbD0iIzNiODJmNiIvPjwvc3ZnPg==">
+
     <style>
         body {
             margin: 0;
@@ -26,10 +33,10 @@
             gap: 12px;
         }
 
-        /* 顶部工具栏：左侧对齐状态，右侧对齐按钮 */
+        /* 顶部工具栏 */
         .toolbar {
             display: flex;
-            justify-content: space-between; /* 左右两端对齐 */
+            justify-content: space-between;
             align-items: center;
             width: 100%;
             -webkit-user-select: none;
@@ -37,7 +44,7 @@
             speak: none !important;
         }
 
-        /* 极简状态指示器样式 */
+        /* 极简状态指示器 */
         .lang-indicator {
             font-size: 13px;
             color: #64748b;
@@ -47,29 +54,25 @@
             gap: 8px;
         }
 
-        /* 状态指示器前的彩色小圆点 */
         .lang-indicator::before {
             content: "";
             display: inline-block;
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #94a3b8; /* 默认灰色 */
+            background-color: #94a3b8;
             transition: background-color 0.2s ease;
         }
 
-        /* 三语状态灯色彩 */
-        .lang-zh::before { background-color: #3b82f6 !important; } /* 中文：蓝色 */
-        .lang-ja::before { background-color: #ef4444 !important; } /* 日语：红色 */
-        .lang-en::before { background-color: #10b981 !important; } /* 英文：绿色 */
+        .lang-zh::before { background-color: #3b82f6 !important; } 
+        .lang-ja::before { background-color: #ef4444 !important; } 
+        .lang-en::before { background-color: #10b981 !important; } 
 
-        /* 按钮容器 */
         .btn-group {
             display: flex;
             gap: 8px;
         }
 
-        /* 基础按钮 */
         .btn-tool {
             border: none;
             padding: 8px 16px;
@@ -80,7 +83,6 @@
             transition: all 0.2s ease;
         }
 
-        /* “导入 TXT”按钮：莫兰迪优雅蓝色 */
         .btn-import {
             background-color: #e0f2fe;
             color: #0369a1;
@@ -89,7 +91,6 @@
             background-color: #bae6fd;
         }
 
-        /* “清空文字”按钮：质感暖灰色 */
         .btn-clear {
             background-color: #e2e8f0;
             color: #475569;
@@ -98,7 +99,7 @@
             background-color: #cbd5e1;
         }
 
-        /* 实体书页质感排版 */
+        /* 实体书页排版 */
         .book-page {
             width: 100%;
             min-height: 80vh;
@@ -116,7 +117,6 @@
             word-wrap: break-word;
         }
 
-        /* 占位提示文字 */
         .book-page:empty::before {
             content: attr(placeholder);
             color: #94a3b8;
@@ -127,19 +127,14 @@
 <body>
 
     <div class="container">
-        <!-- 顶部工具栏 -->
         <div class="toolbar" aria-hidden="true" role="none">
-            <!-- 左侧：语言状态指示器 -->
             <div id="lang-indicator" class="lang-indicator">等待输入...</div>
-            
-            <!-- 右侧：按钮组 -->
             <div class="btn-group">
                 <input type="file" id="txt-file-input" accept=".txt" style="display: none;" />
                 <button class="btn-tool btn-import" onclick="triggerImport()">导入 TXT</button>
                 <button class="btn-tool btn-clear" onclick="clearText()">清空文字</button>
             </div>
         </div>
-        
         <div id="read-target" class="book-page" contenteditable="plaintext-only" placeholder="请在此粘贴文字，或点击上方按钮导入 TXT 文件..." autofocus></div>
     </div>
 
@@ -150,40 +145,35 @@
         const langIndicator = document.getElementById('lang-indicator');
         const storageKey = 'reader_cached_text';
 
-        // 核心：智能语言检测，并实时渲染状态灯和文字
         function autoDetectLanguage(text) {
             if (!text || text.trim() === "") {
                 htmlRoot.setAttribute('lang', 'zh-CN');
                 langIndicator.textContent = "等待输入...";
-                langIndicator.className = "lang-indicator"; // 灰色
+                langIndicator.className = "lang-indicator";
                 return;
             }
             
-            // 1. 优先检测日语（检测是否含有平假名或片假名）
             const hasJapaneseKana = /[\u3040-\u309F\u30A0-\u30FF]/.test(text);
             if (hasJapaneseKana) {
                 htmlRoot.setAttribute('lang', 'ja-JP');
                 langIndicator.textContent = "语言: 日本語 (ja-JP)";
-                langIndicator.className = "lang-indicator lang-ja"; // 红色
+                langIndicator.className = "lang-indicator lang-ja";
                 return;
             }
 
-            // 2. 其次检测中文汉字
             const hasChinese = /[\u4e00-\u9fa5]/.test(text);
             if (hasChinese) {
                 htmlRoot.setAttribute('lang', 'zh-CN');
                 langIndicator.textContent = "语言: 中文 (zh-CN)";
-                langIndicator.className = "lang-indicator lang-zh"; // 蓝色
+                langIndicator.className = "lang-indicator lang-zh";
                 return;
             }
 
-            // 3. 若皆无，默认判定为英文
             htmlRoot.setAttribute('lang', 'en-US');
             langIndicator.textContent = "语言: English (en-US)";
-            langIndicator.className = "lang-indicator lang-en"; // 绿色
+            langIndicator.className = "lang-indicator lang-en";
         }
 
-        // 1. 初始化页面：载入缓存并检测语种
         window.addEventListener('DOMContentLoaded', function() {
             const cachedText = localStorage.getItem(storageKey);
             if (cachedText) {
@@ -194,14 +184,12 @@
             }
         });
 
-        // 2. 实时保存并检测语种
         page.addEventListener('input', function() {
             const currentText = page.innerText;
             localStorage.setItem(storageKey, currentText);
             autoDetectLanguage(currentText);
         });
 
-        // 3. 强制过滤粘贴格式
         page.addEventListener('paste', function(e) {
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -220,12 +208,10 @@
             autoDetectLanguage(currentText);
         });
 
-        // 4. 触发导入
         function triggerImport() {
             fileInput.click();
         }
 
-        // 5. 监听文件选择并导入
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -235,7 +221,7 @@
                 const textContent = evt.target.result;
                 page.innerText = textContent;                  
                 localStorage.setItem(storageKey, textContent); 
-                autoDetectLanguage(textContent);               // 实时改变状态灯
+                autoDetectLanguage(textContent);
                 fileInput.value = '';                         
                 page.focus();
             };
@@ -243,15 +229,13 @@
             reader.readAsText(file, 'UTF-8');
         });
 
-        // 6. 一键清空页面及本地缓存
         function clearText() {
             page.innerHTML = '';
             localStorage.removeItem(storageKey);
             fileInput.value = '';
-            autoDetectLanguage(''); // 重置状态灯为默认灰色
+            autoDetectLanguage('');
             page.focus();
         }
     </script>
-
 </body>
 </html>
