@@ -9,7 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDI1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSAxUSA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
     
     <!-- 手机桌面图标 -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJkY2QwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0yMCAyNGMxMS0xMCAyNC03IDI5IDB2NDhjLTUtNy0xOC0xMC0yOSAyYy0zLTE3LTMtMzMgMC01MHoiIGZpbGw9IiMxMGI5ODEiLz48cGF0aCBkPSJNNzYgMjRjLTExLTEwLTI0LTctMjkgMHY0OGM1LTcgMTgtMTAgMjkgMmMzLTE3IDMtMzMgMC01MHoiIGZpbGw9IiMzYjgyZjYiLz48L3N2Zz4=">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIwLjE4IiBmaWxsPSJub25lIiBzdHJva2U9IiNlMmRjZDAiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHBhdGggZD0iTTIwIDI0YzExLTEwIDI0LTcgMjkgMHY0OGMtNS03LTE4LTEwLTI5IDJjLTMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik03NiAyNGMtMTEtMTAtMjQtNy0yOSAwdjQ4YzUtNyAxOC0xMCAyOSAyYzMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzliODJmNiIvPjwvc3ZnPg==">
 
     <style>
         body {
@@ -161,7 +161,7 @@
             transform: scale(0.9);
         }
 
-        /* 历史段落折叠提示条（对语音引擎隐形） */
+        /* 历史段落折叠/加载提示条（对语音引擎隐形） */
         .unfold-banner {
             background-color: #ffffff;
             color: #475569;
@@ -177,6 +177,10 @@
             box-sizing: border-box;
             user-select: none;
             speak: none !important;
+            transition: background-color 0.2s;
+        }
+        .unfold-banner:hover {
+            background-color: #f8fafc;
         }
 
         /* 被折叠的已读段落 */
@@ -206,13 +210,11 @@
             margin: 0 0 1.4em 0;
             text-indent: 2em;      
             line-height: 2.0;
-            cursor: text;
         }
 
         .book-page:empty::before {
             content: attr(placeholder);
             color: #94a3b8;
-            cursor: text;
         }
 
         /* 手机端自适应微调 */
@@ -282,29 +284,137 @@
         const storageKey = 'reader_cached_text';
         const paragraphKey = 'reader_cached_paragraph'; 
 
-        let observer = null;
+        // 阈值及窗口配置
+        const THRESHOLD_LARGE_FILE = 1500; // 超过 1500 段视为大文件，开启分片
+        const INITIAL_CHUNK_SIZE = 1000;   // 分片模式：初始加载段数
+        const APPEND_CHUNK_SIZE = 500;    // 分片模式：触底追加段数
+        
+        // 【核心精准安全锁】
+        const PROGRESS_SAFETY_MARGIN = 3; // 刷新或跳转后，自动往前多留出 3 段作为视线过渡，绝不隐藏用户正在读的内容。
 
-        // 听书文本净化器：自动过滤掉连续 3 个以上的排版装饰符号，避免引擎生硬读出
+        let allParagraphs = [];           // 内存数组
+        let isSliceMode = false;          // 是否激活分片模式
+        let renderedStart = 0;            // 当前 DOM 首段索引
+        let renderedEnd = 0;              // 当前 DOM 末段索引
+
+        let isScrollPending = false;      // 滚动节流锁
+        let programmaticScrollLock = false;// 页面自动跳转锁定（防误判）
+
+        // 听书文本净化器
         function sanitizeTextForTTS(text) {
             return text
                 .replace(/[-*#=_~+◆★▲●▼■]{3,}/g, '') 
                 .replace(/\s+/g, ' '); 
         }
 
-        // 格式化段落（过滤空行 & 净化文本）
+        // 格式化文本并判定加载策略
         function formatTextToParagraphs(text) {
             if (!text || text.trim() === "") {
+                allParagraphs = [];
                 page.innerHTML = '';
+                page.contentEditable = "plaintext-only";
+                isSliceMode = false;
+                removeBanners();
                 return;
             }
-            const lines = text.split(/\r?\n/)
+
+            allParagraphs = text.split(/\r?\n/)
                 .map(line => sanitizeTextForTTS(line.trim()))
                 .filter(line => line.length > 0);
 
-            page.innerHTML = lines.map(line => `<p>${line}</p>`).join('');
-            
-            // 重建进度监听
-            initObserver();
+            const totalCount = allParagraphs.length;
+
+            if (totalCount <= THRESHOLD_LARGE_FILE) {
+                // 【全量模式】
+                isSliceMode = false;
+                page.contentEditable = "plaintext-only"; 
+                removeBanners();
+                page.innerHTML = allParagraphs.map((line, idx) => `<p data-idx="${idx}">${line}</p>`).join('');
+            } else {
+                // 【分片模式】
+                isSliceMode = true;
+                page.contentEditable = "false"; 
+                
+                let savedIndex = parseInt(localStorage.getItem(paragraphKey)) || 0;
+                if (savedIndex >= totalCount) savedIndex = 0;
+
+                // 渲染起始位置向前预留 3 段安全缓冲区，保证正在看的段落不丢失
+                renderedStart = Math.max(0, savedIndex - PROGRESS_SAFETY_MARGIN); 
+                renderedEnd = Math.min(totalCount - 1, renderedStart + INITIAL_CHUNK_SIZE);
+
+                renderSlice();
+            }
+        }
+
+        // 渲染分片片段
+        function renderSlice() {
+            removeBanners();
+
+            const docFrag = document.createDocumentFragment();
+
+            if (renderedStart > 0) {
+                const banner = document.createElement('div');
+                banner.id = 'unfold-banner';
+                banner.className = 'unfold-banner';
+                banner.textContent = `上方已折叠 ${renderedStart} 个段落，点击加载更早内容...`;
+                banner.onclick = loadEarlierParagraphs;
+                docFrag.appendChild(banner);
+            }
+
+            for (let i = renderedStart; i <= renderedEnd; i++) {
+                const p = document.createElement('p');
+                p.setAttribute('data-idx', i);
+                p.textContent = allParagraphs[i];
+                docFrag.appendChild(p);
+            }
+
+            page.innerHTML = '';
+            page.appendChild(docFrag);
+        }
+
+        // 动态触底加载
+        function loadMoreParagraphs() {
+            if (renderedEnd >= allParagraphs.length - 1) return;
+
+            const nextEnd = Math.min(allParagraphs.length - 1, renderedEnd + APPEND_CHUNK_SIZE);
+            const fragment = document.createDocumentFragment();
+
+            for (let i = renderedEnd + 1; i <= nextEnd; i++) {
+                const p = document.createElement('p');
+                p.setAttribute('data-idx', i);
+                p.textContent = allParagraphs[i];
+                fragment.appendChild(p);
+            }
+
+            page.appendChild(fragment);
+            renderedEnd = nextEnd;
+        }
+
+        // 动态加载上方内容
+        function loadEarlierParagraphs() {
+            const previousStart = renderedStart;
+            renderedStart = Math.max(0, renderedStart - APPEND_CHUNK_SIZE);
+
+            const referenceNode = page.querySelector(`p[data-idx="${previousStart}"]`);
+            const prevOffset = referenceNode ? referenceNode.getBoundingClientRect().top : 0;
+
+            programmaticScrollLock = true;
+            renderSlice();
+
+            if (referenceNode) {
+                const nextNode = page.querySelector(`p[data-idx="${previousStart}"]`);
+                if (nextNode) {
+                    const postOffset = nextNode.getBoundingClientRect().top;
+                    window.scrollBy(0, postOffset - prevOffset);
+                }
+            }
+            setTimeout(() => { programmaticScrollLock = false; }, 100);
+        }
+
+        // 清理现存提示条
+        function removeBanners() {
+            const banner = document.getElementById('unfold-banner');
+            if (banner) banner.remove();
         }
 
         // 语言自动检测
@@ -337,62 +447,114 @@
             langIndicator.className = "lang-indicator lang-en";
         }
 
-        // 实时阅读进度监听（静默记录）
-        function initObserver() {
-            if (observer) observer.disconnect();
+        // 实时阅读进度监控（微调视线金线为 30%）
+        function trackScrollProgressRealtime() {
+            if (isScrollPending || programmaticScrollLock) return;
+            isScrollPending = true;
 
-            observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const paragraphs = Array.from(page.querySelectorAll('p'));
-                        const index = paragraphs.indexOf(entry.target);
-                        if (index !== -1 && !entry.target.classList.contains('read-folded')) {
-                            localStorage.setItem(paragraphKey, index);
+            requestAnimationFrame(() => {
+                const paragraphs = page.querySelectorAll('p');
+                if (paragraphs.length === 0) {
+                    isScrollPending = false;
+                    return;
+                }
+
+                // 调整追踪线为屏幕中上方 30% 处，更符合中短句朗读习惯下的视觉停留
+                const targetLineY = window.innerHeight * 0.3; 
+                let activeIndex = -1;
+                let closestDistance = Infinity;
+
+                for (let i = 0; i < paragraphs.length; i++) {
+                    const p = paragraphs[i];
+                    if (p.classList.contains('read-folded')) continue;
+
+                    const rect = p.getBoundingClientRect();
+                    
+                    if (rect.top <= targetLineY && rect.bottom >= targetLineY) {
+                        const idxStr = p.getAttribute('data-idx');
+                        if (idxStr !== null) {
+                            activeIndex = parseInt(idxStr);
+                            break; 
                         }
                     }
-                });
-            }, {
-                root: null,
-                rootMargin: "-10% 0px -75% 0px" // 当段落进入屏幕焦点区域时触发
-            });
 
-            const paragraphs = page.querySelectorAll('p');
-            paragraphs.forEach(p => observer.observe(p));
+                    const distance = Math.abs(rect.top - targetLineY);
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        const idxStr = p.getAttribute('data-idx');
+                        if (idxStr !== null) {
+                            activeIndex = parseInt(idxStr);
+                        }
+                    }
+                }
+
+                if (activeIndex !== -1) {
+                    localStorage.setItem(paragraphKey, activeIndex);
+                }
+
+                isScrollPending = false;
+            });
         }
 
-        // 恢复阅读进度
+        // 恢复阅读进度（引入 3 段安全缓冲区）
         function restoreReadingProgress() {
-            const existingBanner = document.getElementById('unfold-banner');
-            if (existingBanner) existingBanner.remove();
-
             const savedIndexStr = localStorage.getItem(paragraphKey);
-            const paragraphs = page.querySelectorAll('p');
-            
-            if (savedIndexStr && paragraphs.length > 0) {
-                const savedIndex = parseInt(savedIndexStr);
-                
-                if (savedIndex > 0 && savedIndex < paragraphs.length) {
+            if (!savedIndexStr) return;
+            const savedIndex = parseInt(savedIndexStr);
+
+            programmaticScrollLock = true; 
+
+            // 计算包含余量后的安全展示起点
+            const safeStartIndex = Math.max(0, savedIndex - PROGRESS_SAFETY_MARGIN);
+
+            if (isSliceMode) {
+                if (savedIndex >= 0 && savedIndex < allParagraphs.length) {
+                    // 若记录的进度不在当前区间内，围绕安全起点重建分片
+                    if (savedIndex < renderedStart || savedIndex > renderedEnd) {
+                        renderedStart = safeStartIndex;
+                        renderedEnd = Math.min(allParagraphs.length - 1, renderedStart + INITIAL_CHUNK_SIZE);
+                        renderSlice();
+                    }
+
+                    setTimeout(() => {
+                        const targetP = page.querySelector(`p[data-idx="${safeStartIndex}"]`);
+                        if (targetP) {
+                            targetP.scrollIntoView({ block: 'start', behavior: 'instant' });
+                            window.scrollBy(0, -15);
+                        }
+                        programmaticScrollLock = false;
+                    }, 150);
+                } else {
+                    programmaticScrollLock = false;
+                }
+            } else {
+                // 全量模式折叠（引入安全余量保护，安全起点之前的元素才允许折叠）
+                const paragraphs = page.querySelectorAll('p');
+                if (safeStartIndex > 0 && safeStartIndex < paragraphs.length) {
                     const banner = document.createElement('div');
                     banner.id = 'unfold-banner';
                     banner.className = 'unfold-banner';
                     banner.setAttribute('aria-hidden', 'true');
                     banner.setAttribute('role', 'none');
                     banner.setAttribute('tabindex', '-1');
-                    banner.textContent = `已自动折叠上方 ${savedIndex} 个已读段落，点击展开...`;
+                    banner.textContent = `已自动折叠上方 ${safeStartIndex} 个已读段落，点击展开...`;
                     banner.onclick = unfoldAllParagraphs;
 
                     const container = document.querySelector('.container');
                     container.insertBefore(banner, page);
 
-                    for (let i = 0; i < savedIndex; i++) {
+                    for (let i = 0; i < safeStartIndex; i++) {
                         paragraphs[i].classList.add('read-folded');
                     }
 
-                    const targetP = paragraphs[savedIndex];
+                    const targetP = paragraphs[safeStartIndex];
                     setTimeout(() => {
                         targetP.scrollIntoView({ block: 'start', behavior: 'instant' });
                         window.scrollTo(0, 0); 
+                        programmaticScrollLock = false;
                     }, 100);
+                } else {
+                    programmaticScrollLock = false;
                 }
             }
         }
@@ -403,12 +565,20 @@
             silentResetFolding();
         }
 
-        // 监听页面滚动，显示或隐藏返回顶部按钮
+        // 监听页面滚动
         window.addEventListener('scroll', function() {
             if (window.scrollY > 400) {
                 toTopBtn.style.display = 'flex';
             } else {
                 toTopBtn.style.display = 'none';
+            }
+
+            trackScrollProgressRealtime();
+
+            if (isSliceMode) {
+                if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 600) {
+                    loadMoreParagraphs();
+                }
             }
         });
 
@@ -419,12 +589,13 @@
         function silentResetFolding() {
             const paragraphs = page.querySelectorAll('p');
             paragraphs.forEach(p => p.classList.remove('read-folded'));
-            
-            const banner = document.getElementById('unfold-banner');
-            if (banner) banner.remove();
+            removeBanners();
         }
 
         function unfoldAllParagraphs() {
+            if (isSliceMode) return;
+            
+            programmaticScrollLock = true;
             silentResetFolding();
             
             const savedIndexStr = localStorage.getItem(paragraphKey);
@@ -434,18 +605,8 @@
                 targetP.scrollIntoView({ block: 'start', behavior: 'instant' });
                 window.scrollBy(0, -50);
             }
+            setTimeout(() => { programmaticScrollLock = false; }, 200);
         }
-
-        // 轻点任意段落手动设置进度起点
-        page.addEventListener('click', function(e) {
-            if (e.target.tagName.toLowerCase() === 'p') {
-                const paragraphs = Array.from(page.querySelectorAll('p'));
-                const index = paragraphs.indexOf(e.target);
-                if (index !== -1) {
-                    localStorage.setItem(paragraphKey, index);
-                }
-            }
-        });
 
         // 搜索面板控制
         function toggleSearchBar() {
@@ -467,20 +628,49 @@
             const query = searchInput.value;
             if (!query || query.trim() === "") return;
 
-            const paragraphs = page.querySelectorAll('p');
             let foundIndex = -1;
 
-            for (let i = 0; i < paragraphs.length; i++) {
-                if (paragraphs[i].textContent.includes(query.trim())) {
-                    foundIndex = i;
-                    break; 
+            if (isSliceMode) {
+                for (let i = 0; i < allParagraphs.length; i++) {
+                    if (allParagraphs[i].includes(query.trim())) {
+                        foundIndex = i;
+                        break; 
+                    }
+                }
+            } else {
+                const paragraphs = page.querySelectorAll('p');
+                for (let i = 0; i < paragraphs.length; i++) {
+                    if (paragraphs[i].textContent.includes(query.trim())) {
+                        foundIndex = i;
+                        break; 
+                    }
                 }
             }
 
             if (foundIndex !== -1) {
-                silentResetFolding();
+                programmaticScrollLock = true;
                 localStorage.setItem(paragraphKey, foundIndex);
-                restoreReadingProgress();
+                
+                const safeSearchIndex = Math.max(0, foundIndex - PROGRESS_SAFETY_MARGIN);
+
+                if (isSliceMode) {
+                    renderedStart = safeSearchIndex;
+                    renderedEnd = Math.min(allParagraphs.length - 1, renderedStart + INITIAL_CHUNK_SIZE);
+                    renderSlice();
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                } else {
+                    silentResetFolding();
+                    restoreReadingProgress();
+                }
+
+                setTimeout(() => {
+                    const targetP = page.querySelector(`p[data-idx="${safeSearchIndex}"]`);
+                    if (targetP) {
+                        targetP.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                    }
+                    programmaticScrollLock = false;
+                }, 150);
+
                 toggleSearchBar();
             } else {
                 alert("未在正文中找到包含该字句的段落。");
@@ -492,24 +682,15 @@
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
             
-            if (document.queryCommandSupported('insertText')) {
-                document.execCommand('insertText', false, text);
-            } else {
-                const selection = window.getSelection();
-                if (!selection.rangeCount) return;
-                selection.deleteFromDocument();
-                selection.getRangeAt(0).insertNode(document.createTextNode(text));
-            }
-            
-            const rawText = page.innerText;
             resetProgress(); 
-            formatTextToParagraphs(rawText);
-            localStorage.setItem(storageKey, rawText);
-            autoDetectLanguage(rawText);
+            localStorage.setItem(storageKey, text);
+            formatTextToParagraphs(text);
+            autoDetectLanguage(text);
         });
 
         // 文本输入
         page.addEventListener('input', function() {
+            if (isSliceMode) return;
             const rawText = page.innerText;
             localStorage.setItem(storageKey, rawText);
             autoDetectLanguage(rawText);
@@ -557,11 +738,14 @@
         function clearText() {
             if (confirm("确定要清空所有文本和听书进度吗？")) {
                 page.innerHTML = '';
+                allParagraphs = [];
+                isSliceMode = false;
+                page.contentEditable = "plaintext-only";
                 localStorage.removeItem(storageKey);
                 localStorage.removeItem(paragraphKey);
                 fileInput.value = '';
                 autoDetectLanguage('');
-                silentResetFolding();
+                removeBanners();
                 page.focus();
             }
         }
