@@ -263,7 +263,7 @@
         </div>
         
         <!-- 文章容器单独隔离 -->
-        <div id="read-target" class="book-page" contenteditable="plaintext-only" placeholder="请在此粘贴中/英/日文字，或点击上方按钮导入 TXT 文件..." autofocus></div>
+        <div id="read-target" class="book-page" contenteditable="plaintext-only" placeholder="请在此粘贴文字，或点击上方按钮导入 TXT 文件..." autofocus></div>
     </div>
 
     <!-- 悬浮返回顶部 -->
@@ -354,7 +354,7 @@
                     banner.className = 'unfold-banner';
                     banner.setAttribute('aria-hidden', 'true');
                     banner.setAttribute('role', 'none');
-                    banner.textContent = `已为您自动折叠上方第 1 ~ ${savedIndex} 段已读内容，点击此处展开历史`;
+                    banner.textContent = `已为您自动折叠上方第 1 ~ ${savedIndex} 段已读内容，点击此处展开...`;
                     banner.onclick = unfoldAllParagraphs;
 
                     // B. 关键修改：插入到 container 内部，page（read-target）的前面，实行物理隔离！
