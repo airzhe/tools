@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>聆书页</title>
     
-    <!-- 1. 标签页图标（Copilot 科技拼色版：极光绿 #10b981 + 皇家蓝 #3b82f6） -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDI1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSA1LCA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
+    <!-- 标签页图标（Copilot 科技拼色版） -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDI1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSAxUSA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
     
-    <!-- 2. 手机桌面图标 -->
+    <!-- 手机桌面图标 -->
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJkY2QwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0yMCAyNGMxMS0xMCAyNC03IDI5IDB2NDhjLTUtNy0xOC0xMC0yOSAyYy0zLTE3LTMtMzMgMC01MHoiIGZpbGw9IiMxMGI5ODEiLz48cGF0aCBkPSJNNzYgMjRjLTExLTEwLTI0LTctMjkgMHY0OGM1LTcgMTgtMTAgMjkgMmMzLTE3IDMtMzMgMC01MHoiIGZpbGw9IiMzYjgyZjYiLz48L3N2Zz4=">
 
     <style>
@@ -16,6 +16,7 @@
             margin: 0;
             padding: 20px;
             background-color: #f5f6f8;
+            color: #1e293b;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             flex-direction: column;
@@ -33,18 +34,16 @@
             gap: 12px;
         }
 
-        /* 顶部工具栏 */
+        /* 顶部工具栏（对语音引擎隐形） */
         .toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            -webkit-user-select: none;
             user-select: none;
             speak: none !important;
         }
 
-        /* 极简状态指示器 */
         .lang-indicator {
             font-size: 13px;
             color: #64748b;
@@ -71,17 +70,18 @@
         .btn-group {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
         .btn-tool {
             border: none;
-            padding: 8px 16px;
+            padding: 8px 14px;
             font-size: 13px;
             font-weight: 500;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s ease;
-            white-space: nowrap !important; 
+            white-space: nowrap; 
         }
 
         .btn-import {
@@ -108,53 +108,75 @@
             background-color: #cbd5e1;
         }
 
-        /* 悬浮返回顶部按钮 */
+        /* 优雅的内置搜索栏（对语音引擎隐形） */
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            background-color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            animation: slideDown 0.2s ease-out;
+            speak: none !important;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #1e293b;
+            outline: none;
+            font-size: 14px;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 悬浮返回顶部（对语音引擎隐形） */
         .btn-to-top {
-            position: fixed !important;
-            bottom: 32px !important;
-            right: 24px !important;
-            width: 44px !important;
-            height: 44px !important;
-            border-radius: 50% !important;
-            background-color: rgba(255, 255, 255, 0.95) !important;
-            color: #1e293b !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-            cursor: pointer !important;
+            position: fixed;
+            bottom: 32px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
             display: none; 
             align-items: center;
             justify-content: center;
-            font-size: 18px !important;
-            font-weight: bold !important;
-            z-index: 9999 !important;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            
-            -webkit-user-select: none;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 999;
+            transition: all 0.2s ease;
             user-select: none;
             speak: none !important;
         }
         .btn-to-top:active {
-            transform: scale(0.9) !important;
-            background-color: #f1f5f9 !important;
+            transform: scale(0.9);
         }
 
-        /* 历史段落折叠提示条（在文章容器外部渲染，彻底物理绝缘） */
+        /* 历史段落折叠提示条（对语音引擎隐形） */
         .unfold-banner {
-            background-color: #f1f5f9 !important;
-            color: #475569 !important;
-            padding: 12px !important;
-            text-align: center !important;
-            font-size: 13px !important;
-            font-weight: 500 !important;
-            border-radius: 12px !important;
-            margin-bottom: 4px !important; /* 调整间距 */
-            cursor: pointer !important;
-            border: 1px dashed #cbd5e1 !important;
-            box-sizing: border-box !important;
-            
-            -webkit-user-select: none;
+            background-color: #ffffff;
+            color: #475569;
+            opacity: 0.85;
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            border: 1px dashed #cbd5e1;
+            box-sizing: border-box;
             user-select: none;
-            speak: none !important; /* 彻底对语音引擎隐形 */
+            speak: none !important;
         }
 
         /* 被折叠的已读段落 */
@@ -165,13 +187,13 @@
         /* 实体书页排版 */
         .book-page {
             width: 100%;
-            min-height: 80vh;
+            min-height: 75vh;
             padding: 32px 24px;
             font-size: 18.5px;
             line-height: 2.0; 
             color: #1e293b;
             background-color: #ffffff;
-            border: none;
+            border: 1px solid #e2e8f0;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
             box-sizing: border-box;
@@ -181,9 +203,10 @@
         }
 
         .book-page p {
-            margin: 0 0 1.4em 0 !important;
-            text-indent: 2em !important;      
-            line-height: 2.0 !important;
+            margin: 0 0 1.4em 0;
+            text-indent: 2em;      
+            line-height: 2.0;
+            cursor: text;
         }
 
         .book-page:empty::before {
@@ -192,82 +215,60 @@
             cursor: text;
         }
 
-        /* 手机端专项微调 */
+        /* 手机端自适应微调 */
         @media screen and (max-width: 768px) {
-            html, body, 
-            #app, #app-root, 
-            .ty-post-app-container, 
-            .ty-main-content, 
-            .post-layout-wrapper, 
-            .post-detail-wrapper, 
-            .post-floor-card, 
-            .floor-main-content {
-                background-color: #ffffff !important; 
+            body {
+                padding: 12px;
             }
 
             .toolbar {
-                width: calc(100% - 16px) !important;
-                padding: 10px 4px !important; 
-                margin: 8px auto !important;
-                gap: 6px !important;
+                padding: 4px 0; 
             }
 
-            .btn-group {
-                gap: 5px !important;          
-            }
-            
             .btn-tool {
-                font-size: 12px !important; 
-                padding: 0 12px !important;   
-                height: 30px !important;
+                font-size: 12px; 
+                padding: 6px 12px;   
             }
 
-            .lang-indicator {
-                font-size: 12px !important; 
-            }
-
-            .post-rich-text-body {
-                margin: 8px 0 !important;   
-                padding: 16px 12px !important;     
-                font-size: 17.5px !important;         
-                border-radius: 0 !important;       
-                box-shadow: none !important;        
+            .book-page {
+                padding: 24px 16px;     
+                font-size: 17.5px;         
+                border-radius: 12px;       
             }
 
             .btn-to-top {
-                bottom: 24px !important;
-                right: 16px !important; 
+                bottom: 24px;
+                right: 16px; 
             }
-        }
-
-        .post-rich-text-body img {
-            max-width: 100% !important;
-            height: auto !important;
-            border-radius: 8px !important;
-            margin: 12px auto !important;
-            display: block !important;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="toolbar" aria-hidden="true" role="none">
+        <!-- 顶部主工具栏（对语音引擎隐藏） -->
+        <div class="toolbar" aria-hidden="true" role="none" tabindex="-1">
             <div id="lang-indicator" class="lang-indicator">--</div>
             <div class="btn-group">
-                <input type="file" id="txt-file-input" accept=".txt" style="display: none;" />
-                <button class="btn-tool btn-import" onclick="triggerImport()">导入</button>
-                <button class="btn-tool btn-search" onclick="searchAndLocate()">搜索</button>
-                <button class="btn-tool btn-clear" onclick="clearText()">清空</button>
+                <input type="file" id="txt-file-input" accept=".txt" style="display: none;" tabindex="-1" />
+                <button class="btn-tool btn-import" onclick="triggerImport()" tabindex="-1">导入</button>
+                <button class="btn-tool btn-search" onclick="toggleSearchBar()" tabindex="-1">搜索</button>
+                <button class="btn-tool btn-clear" onclick="clearText()" tabindex="-1">清空</button>
             </div>
         </div>
+
+        <!-- 内置搜索栏（对语音引擎隐藏） -->
+        <div id="search-bar" class="search-bar" style="display: none;" aria-hidden="true" role="none" tabindex="-1">
+            <input type="text" id="search-input" placeholder="输入已听过的字句定位段落..." onkeydown="handleSearchKeyDown(event)" tabindex="-1" />
+            <button class="btn-tool btn-search" onclick="performSearch()" tabindex="-1">定位</button>
+        </div>
         
-        <!-- 文章容器单独隔离 -->
-        <div id="read-target" class="book-page" contenteditable="plaintext-only" placeholder="请在此粘贴文字，或点击上方按钮导入 TXT 文件..." autofocus></div>
+        <!-- 文章容器 -->
+        <div id="read-target" class="book-page" contenteditable="plaintext-only" role="main" aria-label="小说正文" placeholder="请在此粘贴文字，或点击上方按钮导入 TXT 文件..." autofocus></div>
     </div>
 
-    <!-- 悬浮返回顶部 -->
-    <button id="btn-to-top" class="btn-to-top" onclick="scrollToTop()" aria-hidden="true" role="none">↑</button>
+    <!-- 悬浮返回顶部按钮（对语音引擎隐藏） -->
+    <button id="btn-to-top" class="btn-to-top" onclick="scrollToTop()" title="返回顶部" aria-hidden="true" role="none" tabindex="-1">↑</button>
 
     <script>
         const page = document.getElementById('read-target');
@@ -275,39 +276,38 @@
         const htmlRoot = document.getElementById('html-root');
         const langIndicator = document.getElementById('lang-indicator');
         const toTopBtn = document.getElementById('btn-to-top');
+        const searchBar = document.getElementById('search-bar');
+        const searchInput = document.getElementById('search-input');
         
         const storageKey = 'reader_cached_text';
         const paragraphKey = 'reader_cached_paragraph'; 
 
+        let observer = null;
+
+        // 听书文本净化器：自动过滤掉连续 3 个以上的排版装饰符号，避免引擎生硬读出
+        function sanitizeTextForTTS(text) {
+            return text
+                .replace(/[-*#=_~+◆★▲●▼■]{3,}/g, '') 
+                .replace(/\s+/g, ' '); 
+        }
+
+        // 格式化段落（过滤空行 & 净化文本）
         function formatTextToParagraphs(text) {
             if (!text || text.trim() === "") {
                 page.innerHTML = '';
                 return;
             }
-            const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+            const lines = text.split(/\r?\n/)
+                .map(line => sanitizeTextForTTS(line.trim()))
+                .filter(line => line.length > 0);
+
             page.innerHTML = lines.map(line => `<p>${line}</p>`).join('');
+            
+            // 重建进度监听
+            initObserver();
         }
 
-        function getTopVisibleParagraphIndex() {
-            const paragraphs = page.querySelectorAll('p');
-            if (paragraphs.length === 0) return 0;
-
-            let closestIndex = 0;
-            let closestDist = Infinity;
-
-            paragraphs.forEach((p, index) => {
-                if (p.classList.contains('read-folded')) return;
-
-                const rect = p.getBoundingClientRect();
-                const dist = Math.abs(rect.top - 70); 
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    closestIndex = index;
-                }
-            });
-            return closestIndex;
-        }
-
+        // 语言自动检测
         function autoDetectLanguage(text) {
             if (!text || text.trim() === "") {
                 htmlRoot.setAttribute('lang', 'zh-CN');
@@ -337,78 +337,79 @@
             langIndicator.className = "lang-indicator lang-en";
         }
 
-        // 核心定位重构：将提示条（banner）渲染在 container 内部、page 的外部
+        // 实时阅读进度监听（静默记录）
+        function initObserver() {
+            if (observer) observer.disconnect();
+
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const paragraphs = Array.from(page.querySelectorAll('p'));
+                        const index = paragraphs.indexOf(entry.target);
+                        if (index !== -1 && !entry.target.classList.contains('read-folded')) {
+                            localStorage.setItem(paragraphKey, index);
+                        }
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: "-10% 0px -75% 0px" // 当段落进入屏幕焦点区域时触发
+            });
+
+            const paragraphs = page.querySelectorAll('p');
+            paragraphs.forEach(p => observer.observe(p));
+        }
+
+        // 恢复阅读进度
         function restoreReadingProgress() {
             const existingBanner = document.getElementById('unfold-banner');
             if (existingBanner) existingBanner.remove();
 
             const savedIndexStr = localStorage.getItem(paragraphKey);
             const paragraphs = page.querySelectorAll('p');
+            
             if (savedIndexStr && paragraphs.length > 0) {
                 const savedIndex = parseInt(savedIndexStr);
                 
                 if (savedIndex > 0 && savedIndex < paragraphs.length) {
-                    // A. 创建提示条
                     const banner = document.createElement('div');
                     banner.id = 'unfold-banner';
                     banner.className = 'unfold-banner';
                     banner.setAttribute('aria-hidden', 'true');
                     banner.setAttribute('role', 'none');
-                    banner.textContent = `已为您自动折叠上方第 1 ~ ${savedIndex} 段已读内容，点击此处展开...`;
+                    banner.setAttribute('tabindex', '-1');
+                    banner.textContent = `已自动折叠上方 ${savedIndex} 个已读段落，点击展开...`;
                     banner.onclick = unfoldAllParagraphs;
 
-                    // B. 关键修改：插入到 container 内部，page（read-target）的前面，实行物理隔离！
                     const container = document.querySelector('.container');
                     container.insertBefore(banner, page);
 
-                    // C. 隐藏历史段落
                     for (let i = 0; i < savedIndex; i++) {
                         paragraphs[i].classList.add('read-folded');
                     }
 
-                    // D. 物理置顶
                     const targetP = paragraphs[savedIndex];
                     setTimeout(() => {
                         targetP.scrollIntoView({ block: 'start', behavior: 'instant' });
                         window.scrollTo(0, 0); 
-                    }, 80);
+                    }, 100);
                 }
             }
         }
 
-        // 1. 初始化
-        window.addEventListener('DOMContentLoaded', function() {
-            const cachedRawText = localStorage.getItem(storageKey);
-            if (cachedRawText) {
-                formatTextToParagraphs(cachedRawText);
-                autoDetectLanguage(cachedRawText);
-                restoreReadingProgress(); 
-            } else {
-                autoDetectLanguage('');
-            }
-        });
+        // 重置进度
+        function resetProgress() {
+            localStorage.setItem(paragraphKey, 0);
+            silentResetFolding();
+        }
 
-        // 2. 实时保存
-        page.addEventListener('input', function() {
-            const rawText = page.innerText;
-            localStorage.setItem(storageKey, rawText);
-            autoDetectLanguage(rawText);
-        });
-
-        // 3. 记录位置与控制返回顶部
-        let scrollTimeout;
+        // 监听页面滚动，显示或隐藏返回顶部按钮
         window.addEventListener('scroll', function() {
-            if (window.scrollY > 300) {
+            if (window.scrollY > 400) {
                 toTopBtn.style.display = 'flex';
             } else {
                 toTopBtn.style.display = 'none';
             }
-
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                const topIndex = getTopVisibleParagraphIndex();
-                localStorage.setItem(paragraphKey, topIndex);
-            }, 300);
         });
 
         function scrollToTop() {
@@ -435,8 +436,35 @@
             }
         }
 
-        function searchAndLocate() {
-            const query = prompt("请输入您在另一台设备上听到的段落关键词进行手动定位：\\n（例如：‘本书由爱上阅读’ 或 ‘他惊恐地闭上’）");
+        // 轻点任意段落手动设置进度起点
+        page.addEventListener('click', function(e) {
+            if (e.target.tagName.toLowerCase() === 'p') {
+                const paragraphs = Array.from(page.querySelectorAll('p'));
+                const index = paragraphs.indexOf(e.target);
+                if (index !== -1) {
+                    localStorage.setItem(paragraphKey, index);
+                }
+            }
+        });
+
+        // 搜索面板控制
+        function toggleSearchBar() {
+            if (searchBar.style.display === 'none') {
+                searchBar.style.display = 'flex';
+                searchInput.focus();
+            } else {
+                searchBar.style.display = 'none';
+            }
+        }
+
+        function handleSearchKeyDown(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        function performSearch() {
+            const query = searchInput.value;
             if (!query || query.trim() === "") return;
 
             const paragraphs = page.querySelectorAll('p');
@@ -451,16 +479,15 @@
 
             if (foundIndex !== -1) {
                 silentResetFolding();
-
                 localStorage.setItem(paragraphKey, foundIndex);
                 restoreReadingProgress();
-                
-                alert(`成功！已为您定位并锁定到第 ${foundIndex + 1} 段。\\n现在直接启动 Edge 的大声朗读即可。`);
+                toggleSearchBar();
             } else {
-                alert("未在文章中找到包含该字句的段落，请尝试输入其他连续字句。");
+                alert("未在正文中找到包含该字句的段落。");
             }
         }
 
+        // 粘贴文本
         page.addEventListener('paste', function(e) {
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -475,11 +502,20 @@
             }
             
             const rawText = page.innerText;
+            resetProgress(); 
             formatTextToParagraphs(rawText);
             localStorage.setItem(storageKey, rawText);
             autoDetectLanguage(rawText);
         });
 
+        // 文本输入
+        page.addEventListener('input', function() {
+            const rawText = page.innerText;
+            localStorage.setItem(storageKey, rawText);
+            autoDetectLanguage(rawText);
+        });
+
+        // 导入 TXT（支持编码自动检测）
         function triggerImport() {
             fileInput.click();
         }
@@ -490,7 +526,23 @@
 
             const reader = new FileReader();
             reader.onload = function(evt) {
-                const textContent = evt.target.result;
+                const buffer = evt.target.result;
+                const uint8 = new Uint8Array(buffer);
+                
+                let isUtf8 = true;
+                let i = 0;
+                while (i < uint8.length) {
+                    if (uint8[i] <= 0x7F) { i++; }
+                    else if (uint8[i] >= 0xC2 && uint8[i] <= 0xDF && i + 1 < uint8.length && (uint8[i+1] & 0xC0) === 0x80) { i += 2; }
+                    else if (uint8[i] >= 0xE0 && uint8[i] <= 0xEF && i + 2 < uint8.length && (uint8[i+1] & 0xC0) === 0x80 && (uint8[i+2] & 0xC0) === 0x80) { i += 3; }
+                    else { isUtf8 = false; break; }
+                }
+
+                const encoding = isUtf8 ? 'utf-8' : 'gbk';
+                const decoder = new TextDecoder(encoding);
+                const textContent = decoder.decode(uint8);
+
+                resetProgress(); 
                 formatTextToParagraphs(textContent);               
                 localStorage.setItem(storageKey, textContent); 
                 autoDetectLanguage(textContent);
@@ -498,17 +550,33 @@
                 page.focus();
             };
             
-            reader.readAsText(file, 'UTF-8');
+            reader.readAsArrayBuffer(file);
         });
 
+        // 清空
         function clearText() {
-            page.innerHTML = '';
-            localStorage.removeItem(storageKey);
-            localStorage.removeItem(paragraphKey);
-            fileInput.value = '';
-            autoDetectLanguage('');
-            page.focus();
+            if (confirm("确定要清空所有文本和听书进度吗？")) {
+                page.innerHTML = '';
+                localStorage.removeItem(storageKey);
+                localStorage.removeItem(paragraphKey);
+                fileInput.value = '';
+                autoDetectLanguage('');
+                silentResetFolding();
+                page.focus();
+            }
         }
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            const cachedRawText = localStorage.getItem(storageKey);
+            if (cachedRawText) {
+                formatTextToParagraphs(cachedRawText);
+                autoDetectLanguage(cachedRawText);
+                restoreReadingProgress(); 
+            } else {
+                autoDetectLanguage('');
+            }
+        });
     </script>
 </body>
 </html>
