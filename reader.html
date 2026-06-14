@@ -299,7 +299,6 @@
 
         let isScrollPending = false;      // 滚动节流锁
         let programmaticScrollLock = false;// 页面自动跳转锁定（防误判）
-        let lastScrollY = window.scrollY; // 记录上一次的滚动位置，用以判定滚动方向
 
         // 听书文本净化器
         function sanitizeTextForTTS(text) {
@@ -449,9 +448,8 @@
         }
 
         // 实时阅读进度监控
-        function trackScrollProgressRealtime(scrollingUp) {
-            // 如果是在向上滚动、自动跳转锁或正在处理滚动中，则直接忽略，不改变 offset 值
-            if (isScrollPending || programmaticScrollLock || scrollingUp) return;
+        function trackScrollProgressRealtime() {
+            if (isScrollPending || programmaticScrollLock) return;
             isScrollPending = true;
 
             requestAnimationFrame(() => {
@@ -490,12 +488,7 @@
                 }
 
                 if (activeIndex !== -1) {
-                    const savedIndexStr = localStorage.getItem(paragraphKey);
-                    const savedIndex = savedIndexStr ? parseInt(savedIndexStr) : 0;
-                    // 仅当新计算的段落索引大于当前已保存的索引时才更新，确保进度单向递增，向上滚动时不退回
-                    if (activeIndex > savedIndex) {
-                        localStorage.setItem(paragraphKey, activeIndex);
-                    }
+                    localStorage.setItem(paragraphKey, activeIndex);
                 }
 
                 isScrollPending = false;
@@ -570,22 +563,16 @@
 
         // 监听页面滚动
         window.addEventListener('scroll', function() {
-            const currentScrollY = window.scrollY;
-            // 判定当前滚动动作是否为“向上滚动”
-            const scrollingUp = currentScrollY < lastScrollY;
-            lastScrollY = currentScrollY;
-
-            if (currentScrollY > 400) {
+            if (window.scrollY > 400) {
                 toTopBtn.style.display = 'flex';
             } else {
                 toTopBtn.style.display = 'none';
             }
 
-            // 传入滚动方向判断值
-            trackScrollProgressRealtime(scrollingUp);
+            trackScrollProgressRealtime();
 
             if (isSliceMode) {
-                if (window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 600) {
+                if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 600) {
                     loadMoreParagraphs();
                 }
             }
