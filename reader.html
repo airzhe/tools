@@ -6,9 +6,9 @@
     <title>聆书页</title>
     
     <!-- 1. 标签页图标（Copilot 科技拼色版：极光绿 #10b981 + 皇家蓝 #3b82f6） -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTUgMjJjMTMtMTIgMjctOCAzMyAwdjU0Yy02LTgtMjAtMTItMzMgMmMtNC0xOS00LTM3IDAtNTZ6IiBmaWxsPSIjMTBiOTgxIi8+PHBhdGggZD0iTTg1IDIyYy0xMy0xMi0yNy04LTMzIDB2NTRjNi04IDIwLTEyIDMzIDJjNC0xOSA0LTM3IDAtNTZ6IiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDI1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSA1LCA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
     
-    <!-- 2. 手机桌面图标（同步更新为 Copilot 拼色） -->
+    <!-- 2. 手机桌面图标 -->
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJkY2QwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0yMCAyNGMxMS0xMCAyNC03IDI5IDB2NDhjLTUtNy0xOC0xMC0yOSAyYy0zLTE3LTMtMzMgMC01MHoiIGZpbGw9IiMxMGI5ODEiLz48cGF0aCBkPSJNNzYgMjRjLTExLTEwLTI0LTctMjkgMHY0OGM1LTcgMTgtMTAgMjkgMmMzLTE3IDMtMzMgMC01MHoiIGZpbGw9IiMzYjgyZjYiLz48L3N2Zz4=">
 
     <style>
@@ -48,7 +48,7 @@
         .lang-indicator {
             font-size: 13px;
             color: #64748b;
-            font-weight: 500;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -81,6 +81,7 @@
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s ease;
+            white-space: nowrap !important; 
         }
 
         .btn-import {
@@ -91,6 +92,14 @@
             background-color: #bae6fd;
         }
 
+        .btn-search {
+            background-color: #f0fdf4;
+            color: #15803d;
+        }
+        .btn-search:active {
+            background-color: #dcfce7;
+        }
+
         .btn-clear {
             background-color: #e2e8f0;
             color: #475569;
@@ -99,13 +108,67 @@
             background-color: #cbd5e1;
         }
 
+        /* 悬浮返回顶部按钮 */
+        .btn-to-top {
+            position: fixed !important;
+            bottom: 32px !important;
+            right: 24px !important;
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 50% !important;
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: #1e293b !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+            cursor: pointer !important;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            font-size: 18px !important;
+            font-weight: bold !important;
+            z-index: 9999 !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            
+            -webkit-user-select: none;
+            user-select: none;
+            speak: none !important;
+        }
+        .btn-to-top:active {
+            transform: scale(0.9) !important;
+            background-color: #f1f5f9 !important;
+        }
+
+        /* 历史段落折叠提示条（在文章容器外部渲染，彻底物理绝缘） */
+        .unfold-banner {
+            background-color: #f1f5f9 !important;
+            color: #475569 !important;
+            padding: 12px !important;
+            text-align: center !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            border-radius: 12px !important;
+            margin-bottom: 4px !important; /* 调整间距 */
+            cursor: pointer !important;
+            border: 1px dashed #cbd5e1 !important;
+            box-sizing: border-box !important;
+            
+            -webkit-user-select: none;
+            user-select: none;
+            speak: none !important; /* 彻底对语音引擎隐形 */
+        }
+
+        /* 被折叠的已读段落 */
+        .read-folded {
+            display: none !important; 
+        }
+
         /* 实体书页排版 */
         .book-page {
             width: 100%;
             min-height: 80vh;
             padding: 32px 24px;
             font-size: 18.5px;
-            line-height: 1.9;
+            line-height: 2.0; 
             color: #1e293b;
             background-color: #ffffff;
             border: none;
@@ -117,10 +180,72 @@
             word-wrap: break-word;
         }
 
+        .book-page p {
+            margin: 0 0 1.4em 0 !important;
+            text-indent: 2em !important;      
+            line-height: 2.0 !important;
+        }
+
         .book-page:empty::before {
             content: attr(placeholder);
             color: #94a3b8;
             cursor: text;
+        }
+
+        /* 手机端专项微调 */
+        @media screen and (max-width: 768px) {
+            html, body, 
+            #app, #app-root, 
+            .ty-post-app-container, 
+            .ty-main-content, 
+            .post-layout-wrapper, 
+            .post-detail-wrapper, 
+            .post-floor-card, 
+            .floor-main-content {
+                background-color: #ffffff !important; 
+            }
+
+            .toolbar {
+                width: calc(100% - 16px) !important;
+                padding: 10px 4px !important; 
+                margin: 8px auto !important;
+                gap: 6px !important;
+            }
+
+            .btn-group {
+                gap: 5px !important;          
+            }
+            
+            .btn-tool {
+                font-size: 12px !important; 
+                padding: 0 12px !important;   
+                height: 30px !important;
+            }
+
+            .lang-indicator {
+                font-size: 12px !important; 
+            }
+
+            .post-rich-text-body {
+                margin: 8px 0 !important;   
+                padding: 16px 12px !important;     
+                font-size: 17.5px !important;         
+                border-radius: 0 !important;       
+                box-shadow: none !important;        
+            }
+
+            .btn-to-top {
+                bottom: 24px !important;
+                right: 16px !important; 
+            }
+        }
+
+        .post-rich-text-body img {
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: 8px !important;
+            margin: 12px auto !important;
+            display: block !important;
         }
     </style>
 </head>
@@ -128,27 +253,65 @@
 
     <div class="container">
         <div class="toolbar" aria-hidden="true" role="none">
-            <div id="lang-indicator" class="lang-indicator">等待输入...</div>
+            <div id="lang-indicator" class="lang-indicator">--</div>
             <div class="btn-group">
                 <input type="file" id="txt-file-input" accept=".txt" style="display: none;" />
-                <button class="btn-tool btn-import" onclick="triggerImport()">导入 TXT</button>
-                <button class="btn-tool btn-clear" onclick="clearText()">清空文字</button>
+                <button class="btn-tool btn-import" onclick="triggerImport()">导入</button>
+                <button class="btn-tool btn-search" onclick="searchAndLocate()">搜索</button>
+                <button class="btn-tool btn-clear" onclick="clearText()">清空</button>
             </div>
         </div>
-        <div id="read-target" class="book-page" contenteditable="plaintext-only" placeholder="请在此粘贴文字，或点击上方按钮导入 TXT 文件..." autofocus></div>
+        
+        <!-- 文章容器单独隔离 -->
+        <div id="read-target" class="book-page" contenteditable="plaintext-only" placeholder="请在此粘贴中/英/日文字，或点击上方按钮导入 TXT 文件..." autofocus></div>
     </div>
+
+    <!-- 悬浮返回顶部 -->
+    <button id="btn-to-top" class="btn-to-top" onclick="scrollToTop()" aria-hidden="true" role="none">↑</button>
 
     <script>
         const page = document.getElementById('read-target');
         const fileInput = document.getElementById('txt-file-input');
         const htmlRoot = document.getElementById('html-root');
         const langIndicator = document.getElementById('lang-indicator');
+        const toTopBtn = document.getElementById('btn-to-top');
+        
         const storageKey = 'reader_cached_text';
+        const paragraphKey = 'reader_cached_paragraph'; 
+
+        function formatTextToParagraphs(text) {
+            if (!text || text.trim() === "") {
+                page.innerHTML = '';
+                return;
+            }
+            const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+            page.innerHTML = lines.map(line => `<p>${line}</p>`).join('');
+        }
+
+        function getTopVisibleParagraphIndex() {
+            const paragraphs = page.querySelectorAll('p');
+            if (paragraphs.length === 0) return 0;
+
+            let closestIndex = 0;
+            let closestDist = Infinity;
+
+            paragraphs.forEach((p, index) => {
+                if (p.classList.contains('read-folded')) return;
+
+                const rect = p.getBoundingClientRect();
+                const dist = Math.abs(rect.top - 70); 
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestIndex = index;
+                }
+            });
+            return closestIndex;
+        }
 
         function autoDetectLanguage(text) {
             if (!text || text.trim() === "") {
                 htmlRoot.setAttribute('lang', 'zh-CN');
-                langIndicator.textContent = "等待输入...";
+                langIndicator.textContent = "--";
                 langIndicator.className = "lang-indicator";
                 return;
             }
@@ -156,7 +319,7 @@
             const hasJapaneseKana = /[\u3040-\u309F\u30A0-\u30FF]/.test(text);
             if (hasJapaneseKana) {
                 htmlRoot.setAttribute('lang', 'ja-JP');
-                langIndicator.textContent = "语言: 日本語 (ja-JP)";
+                langIndicator.textContent = "JA";
                 langIndicator.className = "lang-indicator lang-ja";
                 return;
             }
@@ -164,31 +327,139 @@
             const hasChinese = /[\u4e00-\u9fa5]/.test(text);
             if (hasChinese) {
                 htmlRoot.setAttribute('lang', 'zh-CN');
-                langIndicator.textContent = "语言: 中文 (zh-CN)";
+                langIndicator.textContent = "ZH";
                 langIndicator.className = "lang-indicator lang-zh";
                 return;
             }
 
             htmlRoot.setAttribute('lang', 'en-US');
-            langIndicator.textContent = "语言: English (en-US)";
+            langIndicator.textContent = "EN";
             langIndicator.className = "lang-indicator lang-en";
         }
 
+        // 核心定位重构：将提示条（banner）渲染在 container 内部、page 的外部
+        function restoreReadingProgress() {
+            const existingBanner = document.getElementById('unfold-banner');
+            if (existingBanner) existingBanner.remove();
+
+            const savedIndexStr = localStorage.getItem(paragraphKey);
+            const paragraphs = page.querySelectorAll('p');
+            if (savedIndexStr && paragraphs.length > 0) {
+                const savedIndex = parseInt(savedIndexStr);
+                
+                if (savedIndex > 0 && savedIndex < paragraphs.length) {
+                    // A. 创建提示条
+                    const banner = document.createElement('div');
+                    banner.id = 'unfold-banner';
+                    banner.className = 'unfold-banner';
+                    banner.setAttribute('aria-hidden', 'true');
+                    banner.setAttribute('role', 'none');
+                    banner.textContent = `已为您自动折叠上方第 1 ~ ${savedIndex} 段已读内容，点击此处展开历史`;
+                    banner.onclick = unfoldAllParagraphs;
+
+                    // B. 关键修改：插入到 container 内部，page（read-target）的前面，实行物理隔离！
+                    const container = document.querySelector('.container');
+                    container.insertBefore(banner, page);
+
+                    // C. 隐藏历史段落
+                    for (let i = 0; i < savedIndex; i++) {
+                        paragraphs[i].classList.add('read-folded');
+                    }
+
+                    // D. 物理置顶
+                    const targetP = paragraphs[savedIndex];
+                    setTimeout(() => {
+                        targetP.scrollIntoView({ block: 'start', behavior: 'instant' });
+                        window.scrollTo(0, 0); 
+                    }, 80);
+                }
+            }
+        }
+
+        // 1. 初始化
         window.addEventListener('DOMContentLoaded', function() {
-            const cachedText = localStorage.getItem(storageKey);
-            if (cachedText) {
-                page.innerText = cachedText;
-                autoDetectLanguage(cachedText);
+            const cachedRawText = localStorage.getItem(storageKey);
+            if (cachedRawText) {
+                formatTextToParagraphs(cachedRawText);
+                autoDetectLanguage(cachedRawText);
+                restoreReadingProgress(); 
             } else {
                 autoDetectLanguage('');
             }
         });
 
+        // 2. 实时保存
         page.addEventListener('input', function() {
-            const currentText = page.innerText;
-            localStorage.setItem(storageKey, currentText);
-            autoDetectLanguage(currentText);
+            const rawText = page.innerText;
+            localStorage.setItem(storageKey, rawText);
+            autoDetectLanguage(rawText);
         });
+
+        // 3. 记录位置与控制返回顶部
+        let scrollTimeout;
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                toTopBtn.style.display = 'flex';
+            } else {
+                toTopBtn.style.display = 'none';
+            }
+
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const topIndex = getTopVisibleParagraphIndex();
+                localStorage.setItem(paragraphKey, topIndex);
+            }, 300);
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function silentResetFolding() {
+            const paragraphs = page.querySelectorAll('p');
+            paragraphs.forEach(p => p.classList.remove('read-folded'));
+            
+            const banner = document.getElementById('unfold-banner');
+            if (banner) banner.remove();
+        }
+
+        function unfoldAllParagraphs() {
+            silentResetFolding();
+            
+            const savedIndexStr = localStorage.getItem(paragraphKey);
+            const paragraphs = page.querySelectorAll('p');
+            if (savedIndexStr && paragraphs[parseInt(savedIndexStr)]) {
+                const targetP = paragraphs[parseInt(savedIndexStr)];
+                targetP.scrollIntoView({ block: 'start', behavior: 'instant' });
+                window.scrollBy(0, -50);
+            }
+        }
+
+        function searchAndLocate() {
+            const query = prompt("请输入您在另一台设备上听到的段落关键词进行手动定位：\\n（例如：‘本书由爱上阅读’ 或 ‘他惊恐地闭上’）");
+            if (!query || query.trim() === "") return;
+
+            const paragraphs = page.querySelectorAll('p');
+            let foundIndex = -1;
+
+            for (let i = 0; i < paragraphs.length; i++) {
+                if (paragraphs[i].textContent.includes(query.trim())) {
+                    foundIndex = i;
+                    break; 
+                }
+            }
+
+            if (foundIndex !== -1) {
+                silentResetFolding();
+
+                localStorage.setItem(paragraphKey, foundIndex);
+                restoreReadingProgress();
+                
+                alert(`成功！已为您定位并锁定到第 ${foundIndex + 1} 段。\\n现在直接启动 Edge 的大声朗读即可。`);
+            } else {
+                alert("未在文章中找到包含该字句的段落，请尝试输入其他连续字句。");
+            }
+        }
 
         page.addEventListener('paste', function(e) {
             e.preventDefault();
@@ -203,9 +474,10 @@
                 selection.getRangeAt(0).insertNode(document.createTextNode(text));
             }
             
-            const currentText = page.innerText;
-            localStorage.setItem(storageKey, currentText);
-            autoDetectLanguage(currentText);
+            const rawText = page.innerText;
+            formatTextToParagraphs(rawText);
+            localStorage.setItem(storageKey, rawText);
+            autoDetectLanguage(rawText);
         });
 
         function triggerImport() {
@@ -219,7 +491,7 @@
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const textContent = evt.target.result;
-                page.innerText = textContent;                  
+                formatTextToParagraphs(textContent);               
                 localStorage.setItem(storageKey, textContent); 
                 autoDetectLanguage(textContent);
                 fileInput.value = '';                         
@@ -232,6 +504,7 @@
         function clearText() {
             page.innerHTML = '';
             localStorage.removeItem(storageKey);
+            localStorage.removeItem(paragraphKey);
             fileInput.value = '';
             autoDetectLanguage('');
             page.focus();
