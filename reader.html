@@ -284,13 +284,13 @@
         const storageKey = 'reader_cached_text';
         const paragraphKey = 'reader_cached_paragraph'; 
 
-        // 阈值及窗口配置
-        const THRESHOLD_LARGE_FILE = 1500; // 超过 1500 段视为大文件，开启分片
-        const INITIAL_CHUNK_SIZE = 1000;   // 分片模式：初始加载段数
-        const APPEND_CHUNK_SIZE = 500;    // 分片模式：触底追加段数
+        // 【激进高承载方案参数】
+        const THRESHOLD_LARGE_FILE = 1500; // 超过 1500 段才视为大文件，绝大多数文件直接 100% 全量加载
+        const INITIAL_CHUNK_SIZE = 1000;   // 分片模式下：初始载入 1000 段，大幅降低滑动时的分片感
+        const APPEND_CHUNK_SIZE = 500;     // 触底追加 500 段，提升极速滑动时的流畅度
         
-        // 【核心精准安全锁】
-        const PROGRESS_SAFETY_MARGIN = 3; // 刷新或跳转后，自动往前多留出 3 段作为视线过渡，绝不隐藏用户正在读的内容。
+        // 【模糊安全余量（用于非主动触发的载入）】
+        const PROGRESS_SAFETY_MARGIN = 3; 
 
         let allParagraphs = [];           // 内存数组
         let isSliceMode = false;          // 是否激活分片模式
@@ -299,6 +299,7 @@
 
         let isScrollPending = false;      // 滚动节流锁
         let programmaticScrollLock = false;// 页面自动跳转锁定（防误判）
+        let lastScrollY = window.scrollY; // 记录上一次的滚动位置，用以判定滚动方向
 
         // 听书文本净化器
         function sanitizeTextForTTS(text) {
@@ -338,7 +339,7 @@
                 let savedIndex = parseInt(localStorage.getItem(paragraphKey)) || 0;
                 if (savedIndex >= totalCount) savedIndex = 0;
 
-                // 渲染起始位置向前预留 3 段安全缓冲区，保证正在看的段落不丢失
+                // 正常初始化重载时：前置 3 段安全缓冲区
                 renderedStart = Math.max(0, savedIndex - PROGRESS_SAFETY_MARGIN); 
                 renderedEnd = Math.min(totalCount - 1, renderedStart + INITIAL_CHUNK_SIZE);
 
@@ -447,9 +448,10 @@
             langIndicator.className = "lang-indicator lang-en";
         }
 
-        // 实时阅读进度监控（微调视线金线为 30%）
-        function trackScrollProgressRealtime() {
-            if (isScrollPending || programmaticScrollLock) return;
+        // 实时阅读进度监控
+        function trackScrollProgressRealtime(scrollingUp) {
+            // 如果是在向上滚动、自动跳转锁或正在处理滚动中，则直接忽略，不改变 offset 值
+            if (isScrollPending || programmaticScrollLock || scrollingUp) return;
             isScrollPending = true;
 
             requestAnimationFrame(() => {
@@ -459,7 +461,6 @@
                     return;
                 }
 
-                // 调整追踪线为屏幕中上方 30% 处，更符合中短句朗读习惯下的视觉停留
                 const targetLineY = window.innerHeight * 0.3; 
                 let activeIndex = -1;
                 let closestDistance = Infinity;
@@ -489,14 +490,19 @@
                 }
 
                 if (activeIndex !== -1) {
-                    localStorage.setItem(paragraphKey, activeIndex);
+                    const savedIndexStr = localStorage.getItem(paragraphKey);
+                    const savedIndex = savedIndexStr ? parseInt(savedIndexStr) : 0;
+                    // 仅当新计算的段落索引大于当前已保存的索引时才更新，确保进度单向递增，向上滚动时不退回
+                    if (activeIndex > savedIndex) {
+                        localStorage.setItem(paragraphKey, activeIndex);
+                    }
                 }
 
                 isScrollPending = false;
             });
         }
 
-        // 恢复阅读进度（引入 3 段安全缓冲区）
+        // 恢复阅读进度（日常载入，保留安全缓冲余量）
         function restoreReadingProgress() {
             const savedIndexStr = localStorage.getItem(paragraphKey);
             if (!savedIndexStr) return;
@@ -504,12 +510,10 @@
 
             programmaticScrollLock = true; 
 
-            // 计算包含余量后的安全展示起点
             const safeStartIndex = Math.max(0, savedIndex - PROGRESS_SAFETY_MARGIN);
 
             if (isSliceMode) {
                 if (savedIndex >= 0 && savedIndex < allParagraphs.length) {
-                    // 若记录的进度不在当前区间内，围绕安全起点重建分片
                     if (savedIndex < renderedStart || savedIndex > renderedEnd) {
                         renderedStart = safeStartIndex;
                         renderedEnd = Math.min(allParagraphs.length - 1, renderedStart + INITIAL_CHUNK_SIZE);
@@ -528,7 +532,6 @@
                     programmaticScrollLock = false;
                 }
             } else {
-                // 全量模式折叠（引入安全余量保护，安全起点之前的元素才允许折叠）
                 const paragraphs = page.querySelectorAll('p');
                 if (safeStartIndex > 0 && safeStartIndex < paragraphs.length) {
                     const banner = document.createElement('div');
@@ -567,16 +570,22 @@
 
         // 监听页面滚动
         window.addEventListener('scroll', function() {
-            if (window.scrollY > 400) {
+            const currentScrollY = window.scrollY;
+            // 判定当前滚动动作是否为“向上滚动”
+            const scrollingUp = currentScrollY < lastScrollY;
+            lastScrollY = currentScrollY;
+
+            if (currentScrollY > 400) {
                 toTopBtn.style.display = 'flex';
             } else {
                 toTopBtn.style.display = 'none';
             }
 
-            trackScrollProgressRealtime();
+            // 传入滚动方向判断值
+            trackScrollProgressRealtime(scrollingUp);
 
             if (isSliceMode) {
-                if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 600) {
+                if (window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 600) {
                     loadMoreParagraphs();
                 }
             }
@@ -624,6 +633,7 @@
             }
         }
 
+        // 【高精准度搜索重构】
         function performSearch() {
             const query = searchInput.value;
             if (!query || query.trim() === "") return;
@@ -649,22 +659,41 @@
 
             if (foundIndex !== -1) {
                 programmaticScrollLock = true;
-                localStorage.setItem(paragraphKey, foundIndex);
-                
-                const safeSearchIndex = Math.max(0, foundIndex - PROGRESS_SAFETY_MARGIN);
+                localStorage.setItem(paragraphKey, foundIndex); // 记录精确的位置
 
                 if (isSliceMode) {
-                    renderedStart = safeSearchIndex;
+                    // 【大文件模式】绕过安全余量，将 foundIndex 作为切片起点渲染，使其精确对齐在首行
+                    renderedStart = foundIndex;
                     renderedEnd = Math.min(allParagraphs.length - 1, renderedStart + INITIAL_CHUNK_SIZE);
                     renderSlice();
                     window.scrollTo({ top: 0, behavior: 'instant' });
                 } else {
+                    // 【小文件模式】绕过安全余量，精确折叠 foundIndex 之前的所有元素
                     silentResetFolding();
-                    restoreReadingProgress();
+                    
+                    const paragraphs = page.querySelectorAll('p');
+                    if (foundIndex > 0 && foundIndex < paragraphs.length) {
+                        const banner = document.createElement('div');
+                        banner.id = 'unfold-banner';
+                        banner.className = 'unfold-banner';
+                        banner.setAttribute('aria-hidden', 'true');
+                        banner.setAttribute('role', 'none');
+                        banner.setAttribute('tabindex', '-1');
+                        banner.textContent = `已自动折叠上方 ${foundIndex} 个已读段落，点击展开...`;
+                        banner.onclick = unfoldAllParagraphs;
+
+                        const container = document.querySelector('.container');
+                        container.insertBefore(banner, page);
+
+                        for (let i = 0; i < foundIndex; i++) {
+                            paragraphs[i].classList.add('read-folded');
+                        }
+                    }
                 }
 
+                // 精确滚动对齐
                 setTimeout(() => {
-                    const targetP = page.querySelector(`p[data-idx="${safeSearchIndex}"]`);
+                    const targetP = page.querySelector(`p[data-idx="${foundIndex}"]`);
                     if (targetP) {
                         targetP.scrollIntoView({ block: 'start', behavior: 'smooth' });
                     }
