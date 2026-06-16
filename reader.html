@@ -793,14 +793,15 @@
 
         // 清空
         function clearText() {
-            if (confirm("确定要清空所有文本和听书进度吗？")) {
+            // 将提示词修改得更精准，避免用户产生“所有书籍进度都会被删掉”的恐慌
+            if (confirm("确定要清空当前文本和其听书进度吗？")) {
                 page.innerHTML = '';
                 allParagraphs = [];
                 isSliceMode = false;
                 page.contentEditable = "plaintext-only";
                 localStorage.removeItem(storageKey);
-                localStorage.removeItem(getParagraphKey());
-                localStorage.removeItem(filenameKey);
+                localStorage.removeItem(getParagraphKey()); // 仅删除当前文件的进度 Key
+                localStorage.removeItem(filenameKey);       // 移除当前文件名关联
                 fileInput.value = '';
                 autoDetectLanguage('');
                 removeBanners();
