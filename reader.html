@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html id="html-root" lang="zh-CN">
 <head>
@@ -9,7 +10,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDI1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSAxUSA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
     
     <!-- 手机桌面图标 -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIwLjE4IiBmaWxsPSJub25lIiBzdHJva2U9IiNlMmRjZDAiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHBhdGggZD0iTTIwIDI0YzExLTEwIDI0LTcgMjkgMHY0OGMtNS03LTE4LTEwLTI5IDJjLTMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik03NiAyNGMtMTEtMTAtMjQtNy0yOSAwdjQ4YzUtNyAxOC0xMCAyOSAyYzMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzliODJmNiIvPjwvc3ZnPg==">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIwLjE4IiBmaWxsPSJub25lIiBzdHJva2U9IiNlMmRjZDAiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHBhdGggZD0iTTIwIDI0YzExLTEwIDI0LTcgMjkgMHY0OGMtNS03LTE4LTEwLTI5IDJjLTMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik07NiAyNGMtMTEtMTAtMjQtNy0yOSAwdjQ4YzUtNyAxOC0xMCAyOSAyYzMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzliODJmNiIvPjwvc3ZnPg==">
 
     <style>
         body {
@@ -224,23 +225,30 @@
             }
 
             .toolbar {
-                padding: 4px 0; 
+                padding: 6px 0; 
+            }
+
+            .lang-indicator {
+                font-size: 14px;
             }
 
             .btn-tool {
-                font-size: 12px; 
-                padding: 6px 12px;   
+                font-size: 14px; 
+                padding: 8px 16px;   
             }
 
             .book-page {
                 padding: 24px 16px;     
-                font-size: 17.5px;         
+                font-size: 18px;         
                 border-radius: 12px;       
             }
 
             .btn-to-top {
                 bottom: 24px;
                 right: 16px; 
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
             }
         }
     </style>
@@ -282,12 +290,21 @@
         const searchInput = document.getElementById('search-input');
         
         const storageKey = 'reader_cached_text';
-        const paragraphKey = 'reader_cached_paragraph'; 
+        const filenameKey = 'reader_current_filename';
+
+        // 获取基于当前文件名的动态进度 Key
+        function getParagraphKey() {
+            const currentFile = localStorage.getItem(filenameKey);
+            if (currentFile && currentFile !== 'pasted_text') {
+                return `reader_cached_paragraph_${currentFile}`;
+            }
+            return 'reader_cached_paragraph_pasted';
+        }
 
         // 【激进高承载方案参数】
-        const THRESHOLD_LARGE_FILE = 1500; // 超过 1500 段才视为大文件，绝大多数文件直接 100% 全量加载
-        const INITIAL_CHUNK_SIZE = 1000;   // 分片模式下：初始载入 1000 段，大幅降低滑动时的分片感
-        const APPEND_CHUNK_SIZE = 500;     // 触底追加 500 段，提升极速滑动时的流畅度
+        const THRESHOLD_LARGE_FILE = 1500; // 超过 1500 段才视为大文件
+        const INITIAL_CHUNK_SIZE = 1000;   // 分片模式下：初始载入 1000 段
+        const APPEND_CHUNK_SIZE = 500;     // 触底追加 500 段
         
         // 【模糊安全余量（用于非主动触发的载入）】
         const PROGRESS_SAFETY_MARGIN = 3; 
@@ -299,6 +316,7 @@
 
         let isScrollPending = false;      // 滚动节流锁
         let programmaticScrollLock = false;// 页面自动跳转锁定（防误判）
+        let userInteracted = false;       // 【新增】标识用户是否产生真实交互，防止自动滚动回弹
 
         // 听书文本净化器
         function sanitizeTextForTTS(text) {
@@ -306,6 +324,15 @@
                 .replace(/[-*#=_~+◆★▲●▼■]{3,}/g, '') 
                 .replace(/\s+/g, ' '); 
         }
+
+        // 监听用户的真实物理交互行为，一旦触发，允许记录新进度
+        function enableProgressTracking() {
+            userInteracted = true;
+        }
+        window.addEventListener('touchstart', enableProgressTracking, { passive: true });
+        window.addEventListener('mousedown', enableProgressTracking, { passive: true });
+        window.addEventListener('wheel', enableProgressTracking, { passive: true });
+        window.addEventListener('keydown', enableProgressTracking, { passive: true });
 
         // 格式化文本并判定加载策略
         function formatTextToParagraphs(text) {
@@ -335,7 +362,7 @@
                 isSliceMode = true;
                 page.contentEditable = "false"; 
                 
-                let savedIndex = parseInt(localStorage.getItem(paragraphKey)) || 0;
+                let savedIndex = parseInt(localStorage.getItem(getParagraphKey())) || 0;
                 if (savedIndex >= totalCount) savedIndex = 0;
 
                 // 正常初始化重载时：前置 3 段安全缓冲区
@@ -356,9 +383,13 @@
                 const banner = document.createElement('div');
                 banner.id = 'unfold-banner';
                 banner.className = 'unfold-banner';
+                banner.setAttribute('aria-hidden', 'true');
+                banner.setAttribute('role', 'none');
+                banner.setAttribute('tabindex', '-1');
                 banner.textContent = `上方已折叠 ${renderedStart} 个段落，点击加载更早内容...`;
                 banner.onclick = loadEarlierParagraphs;
-                docFrag.appendChild(banner);
+                // 插入至正文之外，对语音引擎彻底隐形
+                page.parentNode.insertBefore(banner, page);
             }
 
             for (let i = renderedStart; i <= renderedEnd; i++) {
@@ -399,6 +430,7 @@
             const prevOffset = referenceNode ? referenceNode.getBoundingClientRect().top : 0;
 
             programmaticScrollLock = true;
+            userInteracted = false; 
             renderSlice();
 
             if (referenceNode) {
@@ -449,7 +481,8 @@
 
         // 实时阅读进度监控
         function trackScrollProgressRealtime() {
-            if (isScrollPending || programmaticScrollLock) return;
+            // 【核心修复】如果没有发生真实的用户交互，不触发新进度写入，防止滚动跳转覆盖历史进度
+            if (!userInteracted || isScrollPending || programmaticScrollLock) return;
             isScrollPending = true;
 
             requestAnimationFrame(() => {
@@ -488,20 +521,21 @@
                 }
 
                 if (activeIndex !== -1) {
-                    localStorage.setItem(paragraphKey, activeIndex);
+                    localStorage.setItem(getParagraphKey(), activeIndex);
                 }
 
                 isScrollPending = false;
             });
         }
 
-        // 恢复阅读进度（日常载入，保留安全缓冲余量）
+        // 恢复阅读进度
         function restoreReadingProgress() {
-            const savedIndexStr = localStorage.getItem(paragraphKey);
+            const savedIndexStr = localStorage.getItem(getParagraphKey());
             if (!savedIndexStr) return;
             const savedIndex = parseInt(savedIndexStr);
 
             programmaticScrollLock = true; 
+            userInteracted = false; // 载入恢复期间，关闭更新锁
 
             const safeStartIndex = Math.max(0, savedIndex - PROGRESS_SAFETY_MARGIN);
 
@@ -557,7 +591,7 @@
 
         // 重置进度
         function resetProgress() {
-            localStorage.setItem(paragraphKey, 0);
+            localStorage.setItem(getParagraphKey(), 0);
             silentResetFolding();
         }
 
@@ -592,9 +626,10 @@
             if (isSliceMode) return;
             
             programmaticScrollLock = true;
+            userInteracted = false; 
             silentResetFolding();
             
-            const savedIndexStr = localStorage.getItem(paragraphKey);
+            const savedIndexStr = localStorage.getItem(getParagraphKey());
             const paragraphs = page.querySelectorAll('p');
             if (savedIndexStr && paragraphs[parseInt(savedIndexStr)]) {
                 const targetP = paragraphs[parseInt(savedIndexStr)];
@@ -646,16 +681,15 @@
 
             if (foundIndex !== -1) {
                 programmaticScrollLock = true;
-                localStorage.setItem(paragraphKey, foundIndex); // 记录精确的位置
+                userInteracted = false; // 临时锁定，防止定位时的自动滚动覆盖精准定位点
+                localStorage.setItem(getParagraphKey(), foundIndex); 
 
                 if (isSliceMode) {
-                    // 【大文件模式】绕过安全余量，将 foundIndex 作为切片起点渲染，使其精确对齐在首行
                     renderedStart = foundIndex;
                     renderedEnd = Math.min(allParagraphs.length - 1, renderedStart + INITIAL_CHUNK_SIZE);
                     renderSlice();
                     window.scrollTo({ top: 0, behavior: 'instant' });
                 } else {
-                    // 【小文件模式】绕过安全余量，精确折叠 foundIndex 之前的所有元素
                     silentResetFolding();
                     
                     const paragraphs = page.querySelectorAll('p');
@@ -698,6 +732,7 @@
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
             
+            localStorage.setItem(filenameKey, 'pasted_text');
             resetProgress(); 
             localStorage.setItem(storageKey, text);
             formatTextToParagraphs(text);
@@ -739,10 +774,16 @@
                 const decoder = new TextDecoder(encoding);
                 const textContent = decoder.decode(uint8);
 
-                resetProgress(); 
+                // 更新当前文件名
+                localStorage.setItem(filenameKey, file.name);
+                
                 formatTextToParagraphs(textContent);               
                 localStorage.setItem(storageKey, textContent); 
                 autoDetectLanguage(textContent);
+                
+                // 恢复进度
+                restoreReadingProgress();
+
                 fileInput.value = '';                         
                 page.focus();
             };
@@ -758,7 +799,8 @@
                 isSliceMode = false;
                 page.contentEditable = "plaintext-only";
                 localStorage.removeItem(storageKey);
-                localStorage.removeItem(paragraphKey);
+                localStorage.removeItem(getParagraphKey());
+                localStorage.removeItem(filenameKey);
                 fileInput.value = '';
                 autoDetectLanguage('');
                 removeBanners();
