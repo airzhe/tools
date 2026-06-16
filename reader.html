@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html id="html-root" lang="zh-CN">
 <head>
@@ -7,7 +6,7 @@
     <title>聆书页</title>
     
     <!-- 标签页图标（已修正拼写错误，完整恢复蓝绿双色拼色） -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDE1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSAxUSA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDI1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSAxUSA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
     
     <!-- 手机桌面图标（已修正拼写错误并优化圆角边框） -->
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJkY2QwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0yMCAyNGMxMS0xMCAyNC03IDI5IDB2NDhjLTUtNy0xOC0xMC0yOSAyYy0zLTE3LTMtMzMgMC01MHoiIGZpbGw9IiMxMGI5ODEiLz48cGF0aCBkPSJNNzYgMjRjLTExLTEwLTI0LTctMjkgMHY0OGM1LTcgMTgtMTAgMjkgMmMzLTE3LTMtMzMgMC01MHoiIGZpbGw9IiMzYjgyZjYiLz48L3N2Zz4=">
@@ -293,7 +292,7 @@
         const filenameKey = 'reader_current_filename';
 
         // 默认载入名篇《从百草园到三味书屋》作为演示文本
-        const defaultText = `我家的后面有一个很大的园，相传叫作百草园。现在是早已并屋子一起卖给朱文公的子孙了，连那最末次的相见也已经隔了七八年，其中似乎确凿只有一些野草; 但那时却是我的乐园。
+         const defaultText = `我家的后面有一个很大的园，相传叫作百草园。现在是早已并屋子一起卖给朱文公的子孙了，连那最末次的相见也已经隔了七八年，其中似乎确凿只有一些野草; 但那时却是我的乐园。
 
 不必说碧绿的菜畦，光滑的石井栏，高大的皂荚树，紫红的桑椹;也不必说鸣蝉在树叶里长吟，肥胖的黄蜂伏在菜花上，轻捷的叫天子(云雀)忽然从草间直窜向云霄里去了。单是周围的短短的泥墙根一带，就有无限趣味。油蛉在这里低唱，蟋蟀们在这里弹琴。翻开断砖来，有时会遇见蜈蚣;还有斑蝥，倘若用手指按住它的脊梁，便会拍的一声，从后窍喷出一阵烟雾。何首乌藤和木莲藤缠络着，木莲有莲房一般的果实，何首乌有拥肿的根。有人说，何首乌根是有像人形的，吃了便可以成仙，我于是常常拔它起来，牵连不断地拔起来，也曾因此弄坏了泥墙，却从来没有见过有一块根像人样。如果不怕刺，还可以摘到覆盆子，像小珊瑚珠攒成的小球，又酸又甜，色味都比桑椹要好得远。
 
@@ -366,6 +365,45 @@
         let isScrollPending = false;      
         let programmaticScrollLock = false;
         let userInteracted = false;       
+
+        // 【新增】万能 HTML 转义字符（网页实体字符）解码函数
+        function decodeHTMLEntities(text) {
+            if (!text) return "";
+            return text
+                // 1. 用户指定的以及其他高频常用网页命名实体
+                .replace(/&hellip;/g, '…')
+                .replace(/&ldquo;/g, '“')
+                .replace(/&rdquo;/g, '”')
+                .replace(/&lsquo;/g, '‘')
+                .replace(/&rsquo;/g, '’')
+                .replace(/&middot;/g, '·')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, "'")
+                .replace(/&mdash;/g, '—')
+                .replace(/&ndash;/g, '–')
+                .replace(/&bull;/g, '•')
+                .replace(/&copy;/g, '©')
+                .replace(/&reg;/g, '®')
+                .replace(/&trade;/g, '™')
+                .replace(/&times;/g, '×')
+                .replace(/&divide;/g, '÷')
+                .replace(/&deg;/g, '°')
+                .replace(/&yen;/g, '¥')
+                .replace(/&euro;/g, '€')
+                .replace(/&sect;/g, '§')
+                // 2. 动态解码十进制网页数字实体，如 &#12288;
+                .replace(/&#(\d+);/g, (match, dec) => {
+                    try { return String.fromCodePoint(parseInt(dec, 10)); } catch (e) { return match; }
+                })
+                // 3. 动态解码十六进制网页数字实体，如 &#x3002;
+                .replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => {
+                    try { return String.fromCodePoint(parseInt(hex, 16)); } catch (e) { return match; }
+                });
+        }
 
         // 听书文本净化
         function sanitizeTextForTTS(text) {
@@ -762,10 +800,14 @@
             }
         }
 
+        // 粘贴文本（在此处自动过滤并转译 HTML 实体符号）
         page.addEventListener('paste', function(e) {
             e.preventDefault();
-            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            let text = (e.clipboardData || window.clipboardData).getData('text/plain');
             
+            // 执行通用解码
+            text = decodeHTMLEntities(text);
+
             localStorage.setItem(filenameKey, 'pasted_text');
             resetProgress(); 
             localStorage.setItem(storageKey, text);
@@ -784,6 +826,7 @@
             fileInput.click();
         }
 
+        // 导入文本（在此处自动过滤并转译 HTML 实体符号）
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -804,7 +847,10 @@
 
                 const encoding = isUtf8 ? 'utf-8' : 'gbk';
                 const decoder = new TextDecoder(encoding);
-                const textContent = decoder.decode(uint8);
+                let textContent = decoder.decode(uint8);
+
+                // 执行通用解码
+                textContent = decodeHTMLEntities(textContent);
 
                 localStorage.setItem(filenameKey, file.name);
                 
@@ -822,15 +868,14 @@
         });
 
         function clearText() {
-            // 将提示词修改得更精准，避免用户产生“所有书籍进度都会被删掉”的恐慌
             if (confirm("确定要清空当前文本和其听书进度吗？")) {
                 page.innerHTML = '';
                 allParagraphs = [];
                 isSliceMode = false;
                 page.contentEditable = "plaintext-only";
                 localStorage.removeItem(storageKey);
-                localStorage.removeItem(getParagraphKey()); // 仅删除当前文件的进度 Key
-                localStorage.removeItem(filenameKey);       // 移除当前文件名关联
+                localStorage.removeItem(getParagraphKey());
+                localStorage.removeItem(filenameKey);
                 fileInput.value = '';
                 autoDetectLanguage('');
                 removeBanners();
@@ -842,7 +887,6 @@
         window.addEventListener('DOMContentLoaded', function() {
             let cachedRawText = localStorage.getItem(storageKey);
             
-            // 如果本地没有缓存，则默认载入鲁迅先生的名篇，并设定好相应的文件关联名
             if (!cachedRawText) {
                 cachedRawText = defaultText;
                 localStorage.setItem(storageKey, defaultText);
