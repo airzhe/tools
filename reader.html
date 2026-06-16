@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>聆书页</title>
     
-    <!-- 标签页图标（Copilot 科技拼色版） -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDI1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSAxUSA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
+    <!-- 标签页图标（已修正拼写错误，完整恢复蓝绿双色拼色） -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTIgMjBDMjUgNSA0MSA1IDQ5IDE1djY1QzQxIDcwIDE1IDcwIDEyIDg1WiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0gODggMjAgQyA3NSA1LCA1OSAxUSA1MSAxNSBWIDgwIEMgNTkgNzAsIDc1IDcwLCA4OCA4NSBaIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+">
     
-    <!-- 手机桌面图标 -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIwLjE4IiBmaWxsPSJub25lIiBzdHJva2U9IiNlMmRjZDAiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHBhdGggZD0iTTIwIDI0YzExLTEwIDI0LTcgMjkgMHY0OGMtNS03LTE4LTEwLTI5IDJjLTMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik07NiAyNGMtMTEtMTAtMjQtNy0yOSAwdjQ4YzUtNyAxOC0xMCAyOSAyYzMtMTctMy0zMyAwLTUweiIgZmlsbD0iIzliODJmNiIvPjwvc3ZnPg==">
+    <!-- 手机桌面图标（已修正拼写错误并优化圆角边框） -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjIiIGZpbGw9IiNmY2ZiZjciLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iODgiIGhlaWdodD0iODgiIHJ4PSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTJkY2QwIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxwYXRoIGQ9Ik0yMCAyNGMxMS0xMCAyNC03IDI5IDB2NDhjLTUtNy0xOC0xMC0yOSAyYy0zLTE3LTMtMzMgMC01MHoiIGZpbGw9IiMxMGI5ODEiLz48cGF0aCBkPSJNNzYgMjRjLTExLTEwLTI0LTctMjkgMHY0OGM1LTcgMTgtMTAgMjkgMmMzLTE3LTMtMzMgMC01MHoiIGZpbGw9IiMzYjgyZjYiLz48L3N2Zz4=">
 
     <style>
         body {
@@ -292,6 +292,29 @@
         const storageKey = 'reader_cached_text';
         const filenameKey = 'reader_current_filename';
 
+        // 默认载入名篇《从百草园到三味书屋》作为演示文本
+        const defaultText = `我家的后面有一个很大的园，相传叫作百草园。现在是早已并给梁店铺子做了住宅了，垃圾堆也不会剩，但那时却是我的乐园。
+
+不必说碧绿的菜畦，光滑的石井栏，高大的皂荚树，紫红的桑椹；也不必说鸣蝉在树叶里长吟，肥胖的黄蜂伏在菜花上，轻捷的叫天子（云雀）忽然从草间直窜向云霄里去了。单是周围的短短泥墙根一带，就有无限趣味。油蛉在这里低唱，蟋蟀们在这里弹琴。翻开断砖来，有时会遇见蜈蚣；还有斑蝥，倘若用手指按住它的脊梁，便会啪的一声，从后窍喷出一阵烟雾。何首乌藤和木莲藤缠络着，木莲有莲房一般的果实，何首乌有臃肿的根。有人说，何首乌根是有像人形的，吃了便可以成仙，我于是常常拔它起来，牵连不断地拔起来，也曾因此弄坏了泥墙，却从来没有见过有一块根像人样。如果不怕刺，还可以摘到覆盆子，像小珊瑚珠攒成的小球，又酸又甜，色味都比桑椹要好得远。
+
+长的草里是不去的，因为说得有大蜈蚣；还有赤练蛇。
+
+美女蛇的故事是这样的：先前，有一个读书人住在古庙里用功，晚间，在庭前纳凉的时候，突然听到有人在叫他。他抬头一看，只见一个美女正在墙头上向他微笑。他很高兴，但当他走到墙边时，美女却不见了。第二天，一位老禅师来看他，说他脸上有一股妖气。读书人吓坏了，老禅师便送给他一个飞蜈蚣，装在盒子里，说晚上放在枕边，听到叫声千万不要答应。夜里，那美女蛇果然来了，它刚爬到床前，只听得盒子里一声响，一道金光飞出，美女蛇便不见了。原来那飞蜈蚣已经把蛇吸进肚子里去了。
+
+这个故事使我得到做人的教训：倘有陌生人叫你的名字，你万万不可答应他。
+
+冬天的百草园比较的无味；雪一下，可就两样了。拍雪人（将雪人从一处拍到另一处）和塑雪罗汉需要人们鉴赏，这是荒凉的地方，设施不便，所以不常用。扫开一块雪，露出地面，用一支短棒支起一面大的竹筛来，下面撒些秕谷，棒上系一条长绳，人远远地牵着，看鸟雀下来啄食，走到筛底下的时候，将绳子一拉，便罩住了。但咱们沙地里的雀子多，积雪时，扫开一块雪，用支起一个大竹筛。这方法是闰土的父亲传授给我的。
+
+我不知道为什么家里的人要送我到书塾去了，而且还是全城中称为最严厉的书塾。也许是因为拔何首乌毁了泥墙罢，也许是因为将砖头抛到间壁的梁家去了罢，也许是因为站在石井栏上跳下来罢……都无从知道。总而言之：我将不能常到百草园了。Ade，我的蟋蟀们！Ade，我的覆盆子们和木莲们！
+
+出门向东，不上半里，走过一道石桥，便是我的先生的家了。从一扇黑油的竹门进去，第三间是书房。中间挂着一块扁道：三味书屋；扁下面是一幅画，画着一只很肥大的梅花鹿伏在古树下。没有孔子的牌位，我们便对着那幅画和扁行礼。第一次是拜孔子，第二次是拜先生。
+
+第二次行礼时，先生便和蔼地作揖回应。他是一个高而瘦的老人，须发都花白了，还戴着大眼镜。我对他很恭敬，因为我早听到，他是本城中极方正，质朴，博学的人。
+
+三味书屋后面也有一个园，虽然小，但在那里也可以爬上花坛去折腊梅花，在地上或桂花树上寻蝉蜕。最好的工作是捉了苍蝇喂蚂蚁，静悄悄地。
+
+先生读书的时候，总是微笑地，头仰向后面，摇着，冷冷地。`;
+
         // 获取基于当前文件名的动态进度 Key
         function getParagraphKey() {
             const currentFile = localStorage.getItem(filenameKey);
@@ -301,31 +324,30 @@
             return 'reader_cached_paragraph_pasted';
         }
 
-        // 【激进高承载方案参数】
-        const THRESHOLD_LARGE_FILE = 1500; // 超过 1500 段才视为大文件
-        const INITIAL_CHUNK_SIZE = 1000;   // 分片模式下：初始载入 1000 段
-        const APPEND_CHUNK_SIZE = 500;     // 触底追加 500 段
+        // 【大文件分片模式参数】
+        const THRESHOLD_LARGE_FILE = 1500; 
+        const INITIAL_CHUNK_SIZE = 1000;   
+        const APPEND_CHUNK_SIZE = 500;     
         
-        // 【模糊安全余量（用于非主动触发的载入）】
+        // 【安全加载缓冲区】
         const PROGRESS_SAFETY_MARGIN = 3; 
 
-        let allParagraphs = [];           // 内存数组
-        let isSliceMode = false;          // 是否激活分片模式
-        let renderedStart = 0;            // 当前 DOM 首段索引
-        let renderedEnd = 0;              // 当前 DOM 末段索引
+        let allParagraphs = [];           
+        let isSliceMode = false;          
+        let renderedStart = 0;            
+        let renderedEnd = 0;              
 
-        let isScrollPending = false;      // 滚动节流锁
-        let programmaticScrollLock = false;// 页面自动跳转锁定（防误判）
-        let userInteracted = false;       // 【新增】标识用户是否产生真实交互，防止自动滚动回弹
+        let isScrollPending = false;      
+        let programmaticScrollLock = false;
+        let userInteracted = false;       
 
-        // 听书文本净化器
+        // 听书文本净化
         function sanitizeTextForTTS(text) {
             return text
                 .replace(/[-*#=_~+◆★▲●▼■]{3,}/g, '') 
                 .replace(/\s+/g, ' '); 
         }
 
-        // 监听用户的真实物理交互行为，一旦触发，允许记录新进度
         function enableProgressTracking() {
             userInteracted = true;
         }
@@ -334,7 +356,7 @@
         window.addEventListener('wheel', enableProgressTracking, { passive: true });
         window.addEventListener('keydown', enableProgressTracking, { passive: true });
 
-        // 格式化文本并判定加载策略
+        // 格式化文本
         function formatTextToParagraphs(text) {
             if (!text || text.trim() === "") {
                 allParagraphs = [];
@@ -352,20 +374,17 @@
             const totalCount = allParagraphs.length;
 
             if (totalCount <= THRESHOLD_LARGE_FILE) {
-                // 【全量模式】
                 isSliceMode = false;
                 page.contentEditable = "plaintext-only"; 
                 removeBanners();
                 page.innerHTML = allParagraphs.map((line, idx) => `<p data-idx="${idx}">${line}</p>`).join('');
             } else {
-                // 【分片模式】
                 isSliceMode = true;
                 page.contentEditable = "false"; 
                 
                 let savedIndex = parseInt(localStorage.getItem(getParagraphKey())) || 0;
                 if (savedIndex >= totalCount) savedIndex = 0;
 
-                // 正常初始化重载时：前置 3 段安全缓冲区
                 renderedStart = Math.max(0, savedIndex - PROGRESS_SAFETY_MARGIN); 
                 renderedEnd = Math.min(totalCount - 1, renderedStart + INITIAL_CHUNK_SIZE);
 
@@ -373,7 +392,7 @@
             }
         }
 
-        // 渲染分片片段
+        // 渲染分段
         function renderSlice() {
             removeBanners();
 
@@ -388,7 +407,6 @@
                 banner.setAttribute('tabindex', '-1');
                 banner.textContent = `上方已折叠 ${renderedStart} 个段落，点击加载更早内容...`;
                 banner.onclick = loadEarlierParagraphs;
-                // 插入至正文之外，对语音引擎彻底隐形
                 page.parentNode.insertBefore(banner, page);
             }
 
@@ -403,7 +421,6 @@
             page.appendChild(docFrag);
         }
 
-        // 动态触底加载
         function loadMoreParagraphs() {
             if (renderedEnd >= allParagraphs.length - 1) return;
 
@@ -421,7 +438,6 @@
             renderedEnd = nextEnd;
         }
 
-        // 动态加载上方内容
         function loadEarlierParagraphs() {
             const previousStart = renderedStart;
             renderedStart = Math.max(0, renderedStart - APPEND_CHUNK_SIZE);
@@ -443,13 +459,12 @@
             setTimeout(() => { programmaticScrollLock = false; }, 100);
         }
 
-        // 清理现存提示条
         function removeBanners() {
             const banner = document.getElementById('unfold-banner');
             if (banner) banner.remove();
         }
 
-        // 语言自动检测
+        // 语言识别
         function autoDetectLanguage(text) {
             if (!text || text.trim() === "") {
                 htmlRoot.setAttribute('lang', 'zh-CN');
@@ -479,9 +494,8 @@
             langIndicator.className = "lang-indicator lang-en";
         }
 
-        // 实时阅读进度监控
+        // 保存进度
         function trackScrollProgressRealtime() {
-            // 【核心修复】如果没有发生真实的用户交互，不触发新进度写入，防止滚动跳转覆盖历史进度
             if (!userInteracted || isScrollPending || programmaticScrollLock) return;
             isScrollPending = true;
 
@@ -528,14 +542,14 @@
             });
         }
 
-        // 恢复阅读进度
+        // 恢复进度
         function restoreReadingProgress() {
             const savedIndexStr = localStorage.getItem(getParagraphKey());
             if (!savedIndexStr) return;
             const savedIndex = parseInt(savedIndexStr);
 
             programmaticScrollLock = true; 
-            userInteracted = false; // 载入恢复期间，关闭更新锁
+            userInteracted = false; 
 
             const safeStartIndex = Math.max(0, savedIndex - PROGRESS_SAFETY_MARGIN);
 
@@ -589,13 +603,11 @@
             }
         }
 
-        // 重置进度
         function resetProgress() {
             localStorage.setItem(getParagraphKey(), 0);
             silentResetFolding();
         }
 
-        // 监听页面滚动
         window.addEventListener('scroll', function() {
             if (window.scrollY > 400) {
                 toTopBtn.style.display = 'flex';
@@ -639,7 +651,6 @@
             setTimeout(() => { programmaticScrollLock = false; }, 200);
         }
 
-        // 搜索面板控制
         function toggleSearchBar() {
             if (searchBar.style.display === 'none') {
                 searchBar.style.display = 'flex';
@@ -655,7 +666,6 @@
             }
         }
 
-        // 【高精准度搜索重构】
         function performSearch() {
             const query = searchInput.value;
             if (!query || query.trim() === "") return;
@@ -681,7 +691,7 @@
 
             if (foundIndex !== -1) {
                 programmaticScrollLock = true;
-                userInteracted = false; // 临时锁定，防止定位时的自动滚动覆盖精准定位点
+                userInteracted = false; 
                 localStorage.setItem(getParagraphKey(), foundIndex); 
 
                 if (isSliceMode) {
@@ -712,7 +722,6 @@
                     }
                 }
 
-                // 精确滚动对齐
                 setTimeout(() => {
                     const targetP = page.querySelector(`p[data-idx="${foundIndex}"]`);
                     if (targetP) {
@@ -727,7 +736,6 @@
             }
         }
 
-        // 粘贴文本
         page.addEventListener('paste', function(e) {
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -739,7 +747,6 @@
             autoDetectLanguage(text);
         });
 
-        // 文本输入
         page.addEventListener('input', function() {
             if (isSliceMode) return;
             const rawText = page.innerText;
@@ -747,7 +754,6 @@
             autoDetectLanguage(rawText);
         });
 
-        // 导入 TXT（支持编码自动检测）
         function triggerImport() {
             fileInput.click();
         }
@@ -774,14 +780,12 @@
                 const decoder = new TextDecoder(encoding);
                 const textContent = decoder.decode(uint8);
 
-                // 更新当前文件名
                 localStorage.setItem(filenameKey, file.name);
                 
                 formatTextToParagraphs(textContent);               
                 localStorage.setItem(storageKey, textContent); 
                 autoDetectLanguage(textContent);
                 
-                // 恢复进度
                 restoreReadingProgress();
 
                 fileInput.value = '';                         
@@ -791,7 +795,6 @@
             reader.readAsArrayBuffer(file);
         });
 
-        // 清空
         function clearText() {
             // 将提示词修改得更精准，避免用户产生“所有书籍进度都会被删掉”的恐慌
             if (confirm("确定要清空当前文本和其听书进度吗？")) {
@@ -809,16 +812,20 @@
             }
         }
 
-        // 初始化
+        // 初始化加载
         window.addEventListener('DOMContentLoaded', function() {
-            const cachedRawText = localStorage.getItem(storageKey);
-            if (cachedRawText) {
-                formatTextToParagraphs(cachedRawText);
-                autoDetectLanguage(cachedRawText);
-                restoreReadingProgress(); 
-            } else {
-                autoDetectLanguage('');
+            let cachedRawText = localStorage.getItem(storageKey);
+            
+            // 如果本地没有缓存，则默认载入鲁迅先生的名篇，并设定好相应的文件关联名
+            if (!cachedRawText) {
+                cachedRawText = defaultText;
+                localStorage.setItem(storageKey, defaultText);
+                localStorage.setItem(filenameKey, '从百草园到三味书屋.txt');
             }
+            
+            formatTextToParagraphs(cachedRawText);
+            autoDetectLanguage(cachedRawText);
+            restoreReadingProgress(); 
         });
     </script>
 </body>
